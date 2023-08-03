@@ -1,0 +1,43 @@
+"""
+  Rules for generating the set of integration events
+"""
+
+'''
+  Bs0
+'''
+rule generate_integration_events_single_job_for_Bs:
+    input:
+        binary=fitter_path + "bdstokpikpi_CovGen",
+        pars=fitter_path + "par/standard.json",
+    output:
+        temp(fitter_path + "dat/norm-events-Bs-{ipiece}.root")
+    log:
+        "log/integration-Bs-{ipiece}.log"
+    run:
+        seed = hash(output) % (2*(2**31))
+        shell(f"({input.binary} -i {input.pars} -t norm -p Bs -s {seed} -n 5000 -o {output}) > {log}")
+
+rule generate_1M_integration_events_all_jobs_for_Bs:
+    input:
+        files = lambda w: expand(fitter_path+"dat/norm-events-Bs-{ipiece}.root", ipiece=range(1,201))
+    output:
+        fitter_path+"dat/norm_1M_Bs.root",
+    run:
+        shell(f"hadd -f {output} {input.files}")
+
+rule generate_10M_integration_events_all_jobs_for_Bs:
+    input:
+        files = lambda w: expand(fitter_path+"dat/norm-events-Bs-{ipiece}.root", ipiece=range(1,2001))
+    output:
+        fitter_path+"dat/norm_10M_Bs.root",
+    run:
+        shell(f"hadd -f {output} {input.files}")
+
+rule generate_30M_integration_events_all_jobs_for_Bs:
+    input:
+        files = lambda w: expand(fitter_path+"dat/norm-events-Bs-{ipiece}.root", ipiece=range(1,6001))
+    output:
+        tuples_path +"norm_30M_Bs.root"
+    run:
+        shell(f"hadd -f {output} {input.files}")
+
