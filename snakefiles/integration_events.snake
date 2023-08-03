@@ -1,43 +1,43 @@
 """
   Rules for generating the set of integration events
 """
+import os
+
+def get_events_per_job(nevents, njobs):
+    events = [nevents // njobs for _ in range(njobs)]
+
+    remaining = nevents % njobs
+    i = 0
+    while remaining > 0:
+        if i == njobs:
+            i = 0
+        events[i] += 1
+        remaining -= 1
+        i += 1
+
+    return events
+
+available_cpu = os.cpu_count() - 1
+events_per_job_for_1M = get_events_per_job(1_000_000, available_cpu)
 
 '''
   Bs0
 '''
 rule generate_integration_events_single_job_for_Bs:
     input:
-        binary=fitter_path + "bdstokpikpi_CovGen",
-        pars=fitter_path + "par/standard.json",
+        binary=fitter_path + "btokpikpi_CovGen_norm",
     output:
-        temp(fitter_path + "dat/norm-events-Bs-{ipiece}.root")
+        temp(phsp_mc_Bs_path + "norm-events-Bs-{ipiece}.root")
     log:
         "log/integration-Bs-{ipiece}.log"
     run:
         seed = hash(output) % (2*(2**31))
-        shell(f"({input.binary} -i {input.pars} -t norm -p Bs -s {seed} -n 5000 -o {output}) > {log}")
+        shell(f"({input.binary} -s {seed} -n {events_per_job_for_1M[int(wildcards.ipiece)]} -o {output}) > {log}")
 
 rule generate_1M_integration_events_all_jobs_for_Bs:
     input:
-        files = lambda w: expand(fitter_path+"dat/norm-events-Bs-{ipiece}.root", ipiece=range(1,201))
+        files = lambda w: expand(phsp_mc_Bs_path+"norm-events-Bs-{ipiece}.root", ipiece=range(available_cpu))
     output:
-        fitter_path+"dat/norm_1M_Bs.root",
+        phsp_mc_Bs_path+"norm_1M.root",
     run:
         shell(f"hadd -f {output} {input.files}")
-
-rule generate_10M_integration_events_all_jobs_for_Bs:
-    input:
-        files = lambda w: expand(fitter_path+"dat/norm-events-Bs-{ipiece}.root", ipiece=range(1,2001))
-    output:
-        fitter_path+"dat/norm_10M_Bs.root",
-    run:
-        shell(f"hadd -f {output} {input.files}")
-
-rule generate_30M_integration_events_all_jobs_for_Bs:
-    input:
-        files = lambda w: expand(fitter_path+"dat/norm-events-Bs-{ipiece}.root", ipiece=range(1,6001))
-    output:
-        tuples_path +"norm_30M_Bs.root"
-    run:
-        shell(f"hadd -f {output} {input.files}")
-
