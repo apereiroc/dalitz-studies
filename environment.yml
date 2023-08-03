@@ -1,0 +1,9 @@
+name: dalitzstudies
+channels:
+  - conda-forge
+dependencies:
+  - root
+  - uproot=4.3.7
+  - matplotlib
+  - boost
+  - scons
