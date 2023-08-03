@@ -12,3 +12,8 @@ conda env create --file=environment.yml
 conda activate dalitzstudies
 python -m pip install snakemake
 ```
+
+Install qft++
+```bash
+bash install_qft.sh
+```
