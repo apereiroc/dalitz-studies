@@ -44,3 +44,4 @@ os.system(create_paths(data_Du_path))
 """
   Include the snakefiles
 """
+include: "snakefiles/integration_events.snake"
