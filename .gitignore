@@ -35,3 +35,6 @@
 .sconsign.dblite
 .cache/
 compile_commands.json
+log/
+tuples/
+.snakemake/
