@@ -10,8 +10,7 @@
 #include "Par.h"
 
 class AmpBase {
-
-private:
+protected:
   const std::string name;
   const Par idx_abs, idx_arg, idx_absLambda, idx_argLambda;
 
@@ -36,9 +35,12 @@ public:
   }
 
   // Pure virtual method to obtain the dynamical component
-  inline std::complex<double> GetAmp(const Event &event,
-                                     const std::vector<double> &par,
-                                     const CPConf &CP_conf) = 0;
+  virtual inline std::complex<double> GetAmp(const Event &event,
+                                             const std::vector<double> &par,
+                                             const CPConf &CP_conf) = 0;
+
+  // Name's getter
+  inline const std::string &GetName() const { return this->name; }
 
   // Method to obtain the strong+weak coupling
   // Common to all derived classes
