@@ -14,8 +14,9 @@ class BreitWigner : public Propagator {
 public:
   BreitWigner() {}
 
+  using Propagator::evaluate;
   inline virtual std::complex<double>
-  evaluate(const double &x, const std::vector<double> &par) const override {
+  evaluate(const double &x, const std::vector<double> &par) const {
     const double mass0 = par[Par::mass_kst0892];
     const double width0 = par[Par::width_kst0892];
     const double q = get_q(x, mass_Kp, mass_pip);
@@ -27,7 +28,7 @@ public:
   }
 
   using Propagator::add_parameters;
-  inline virtual void add_parameters(std::vector<unsigned int> &par_idx,
+  inline virtual void add_parameters(std::vector<Par> &par_idx,
                                      std::vector<double> &par) const {
     par_idx.push_back(Par::mass_kst0892);
     par_idx.push_back(Par::width_kst0892);
