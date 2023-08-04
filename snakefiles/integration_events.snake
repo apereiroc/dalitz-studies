@@ -25,14 +25,15 @@ events_per_job_for_1M = get_events_per_job(1_000_000, available_cpu)
 '''
 rule generate_integration_events_single_job_for_Bs:
     input:
-        binary=fitter_path + "btokpikpi_CovGen_norm",
+        binary=code_path + "btokpikpi_CovGen_norm",
     output:
         temp(phsp_mc_Bs_path + "norm-events-Bs-{ipiece}.root")
     log:
         "log/integration-Bs-{ipiece}.log"
     run:
-        seed = hash(output) % (2*(2**31))
-        shell(f"({input.binary} -s {seed} -n {events_per_job_for_1M[int(wildcards.ipiece)]} -o {output}) > {log}")
+        seed = get_seed(f"{output}")
+        nevents = events_per_job_for_1M[int(wildcards.ipiece)]
+        shell(f"({input.binary} -s {seed} -n {nevents} -o {output}) > {log}")
 
 rule generate_1M_integration_events_all_jobs_for_Bs:
     input:
