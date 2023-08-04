@@ -3,11 +3,8 @@
 """
 import os
 
-
-nsig = 3_000
-
 available_cpu = os.cpu_count() - 1
-events_per_job_for_Bs = get_events_per_job(nsig, available_cpu)
+events_per_job_for_sig_Bs = get_events_per_job(nsig_Bs, available_cpu)
 
 rule get_hmax_for_generating_Bs_toy:
     input:
@@ -31,7 +28,7 @@ rule i_job_for_generating_Bs_toy:
 
         hmax = float(open(f"{input.file_hmax}", "r").read())
 
-        nevents = events_per_job_for_Bs[int(wildcards.ipiece)]
+        nevents = events_per_job_for_sig_Bs[int(wildcards.ipiece)]
 
         shell(f"{input.binary} -i {input.pars} -n {nevents} -s {seed} --hmax {hmax} -o {output}")
 
@@ -42,6 +39,6 @@ rule all_jobs_for_generating_Bs_toy:
                 data_Bs_path+"sig_Bs_{ipiece}.root",
                 ipiece=range(available_cpu))
     output:
-        data_Bs_path + "sig_Bs.root",
+        data_Bs_path + "signal_set.root",
     run:
         shell(f"hadd -f {output} {input.files}")

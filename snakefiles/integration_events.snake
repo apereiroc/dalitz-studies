@@ -4,7 +4,7 @@
 import os
 
 available_cpu = os.cpu_count() - 1
-events_per_job_for_1M = get_events_per_job(1_000_000, available_cpu)
+events_per_job_for_norm_Bs = get_events_per_job(nint_Bs, available_cpu)
 
 '''
   Bs0
@@ -18,13 +18,13 @@ rule generate_integration_events_single_job_for_Bs:
         "log/integration-Bs-{ipiece}.log"
     run:
         seed = get_seed(f"{output}")
-        nevents = events_per_job_for_1M[int(wildcards.ipiece)]
+        nevents = events_per_job_for_norm_Bs[int(wildcards.ipiece)]
         shell(f"({input.binary} -s {seed} -n {nevents} -o {output}) > {log}")
 
 rule generate_1M_integration_events_all_jobs_for_Bs:
     input:
         files = lambda w: expand(phsp_mc_Bs_path+"norm-events-Bs-{ipiece}.root", ipiece=range(available_cpu))
     output:
-        phsp_mc_Bs_path+"norm_1M.root",
+        phsp_mc_Bs_path+"normalisation_set.root",
     run:
         shell(f"hadd -f {output} {input.files}")
