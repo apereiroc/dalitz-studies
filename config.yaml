@@ -1,8 +1,0 @@
-asier:
-  code_path: "/Users/apereiro/Desktop/Proxectos/dalitz-studies/"
-  tuples_path: "Users/apereiro/Desktop/Proxectos/dalitz-studies/tuples/"
-  latex_compiler: "pdflatex"
-  font: "\\usepackage{stickstootext}\\usepackage[stickstoo,vvarbb]{newtxmath}"
-  fontfamily: "serif"
-  fontsize: 10
-
