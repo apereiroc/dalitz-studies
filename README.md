@@ -17,3 +17,8 @@ Install qft++
 ```bash
 bash install_qft.sh
 ```
+
+You probably have to create a symlink
+```bash
+ln -s $CONDA_PREFIX/external/qft/lib/libqft++* /usr/local/lib
+```
