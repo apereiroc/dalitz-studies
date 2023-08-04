@@ -26,9 +26,9 @@ public:
   }
 
   using AmpBase::GetAmp;
-  inline std::complex<double> GetAmp(const Event &event,
-                                     const std::vector<double> &par,
-                                     const unsigned int &CP_conf) const {
+  virtual inline std::complex<double> GetAmp(const Event &event,
+                                             const std::vector<double> &par,
+                                             const CPConf &CP_conf) const {
 
     const std::array<Minimal4Vector, nBody> &p4s = event.Getp4(CP_conf);
     const double mass1 = (p4s[0] + p4s[1]).M();

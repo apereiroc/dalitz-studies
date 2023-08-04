@@ -37,7 +37,7 @@ public:
   // Pure virtual method to obtain the dynamical component
   virtual inline std::complex<double> GetAmp(const Event &event,
                                              const std::vector<double> &par,
-                                             const CPConf &CP_conf) = 0;
+                                             const CPConf &CP_conf) const = 0;
 
   // Name's getter
   inline const std::string &GetName() const { return this->name; }
@@ -45,7 +45,7 @@ public:
   // Method to obtain the strong+weak coupling
   // Common to all derived classes
   inline std::complex<double> GetCoupling(const std::vector<double> &par,
-                                          const CPConf &CP_conf) {
+                                          const CPConf &CP_conf) const {
     std::complex<double> weak_coupling = {1.0, 0.0};
     if (CP_conf == CPConf::Abar)
       weak_coupling = std::polar(par[idx_absLambda], par[idx_argLambda]);
