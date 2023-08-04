@@ -46,10 +46,14 @@ scons btokpikpi_CovGen_sig get_hmax_Bs -j2
 snakemake tuples/signal/Bs/signal_set.root -j7
 ```
 
+(Optional) check the number of events
+```bash
+python -c "import uproot; print('Sig:', uproot.open('tuples/signal/Bs/signal_set.root')['fitTree'].num_entries)"
+python -c "import uproot; print('Norm:', uproot.open('tuples/normalisation/Bs/normalisation_set.root')['fitTree'].num_entries)"
+```
 
-
-
-
+## Fit
+TODO
 
 
 
