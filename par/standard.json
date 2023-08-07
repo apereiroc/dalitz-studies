@@ -59,8 +59,8 @@
         "val": 0.0473,
         "err": 0.002,
         "fixed": true,
-        "ll": 0.892,
-        "ul": 0.897,
+        "ll": 0.046,
+        "ul": 0.048,
         "latex": "$\\Gamma_{K^{*0}}$"
     },
     "abs_VV_S": {
@@ -79,22 +79,6 @@
         "ul": 15.0,
         "latex": "$\\delta_{VV}^S$"
     },
-    "absLambda_VV_S": {
-        "val": 1.0,
-        "err": 0.001,
-        "fixed": true,
-        "ll": null,
-        "ul": null,
-        "latex": "$|\\lambda_{VV}^S|$"
-    },
-    "argLambda_VV_S": {
-        "val": 0.0,
-        "err": 0.001,
-        "fixed": true,
-        "ll": null,
-        "ul": null,
-        "latex": "$\\arg{\\lambda_{VV}^S}$"
-    },
     "abs_VV_P": {
         "val": 1.7,
         "err": 0.001,
@@ -111,22 +95,6 @@
         "ul": 3.1416,
         "latex": "$\\delta_{VV}^P$"
     },
-    "absLambda_VV_P": {
-        "val": 1.0,
-        "err": 0.001,
-        "fixed": true,
-        "ll": null,
-        "ul": null,
-        "latex": "$|\\lambda_{VV}^P|$"
-    },
-    "argLambda_VV_P": {
-        "val": 0.0,
-        "err": 0.001,
-        "fixed": true,
-        "ll": null,
-        "ul": null,
-        "latex": "$\\arg{\\lambda_{VV}^P}$"
-    },
     "abs_VV_D": {
         "val": 9.4,
         "err": 0.001,
@@ -142,6 +110,38 @@
         "ll": -3.1416,
         "ul": 3.1416,
         "latex": "$\\delta_{VV}^D$"
+    },
+    "absLambda_VV_S": {
+        "val": 1.0,
+        "err": 0.001,
+        "fixed": true,
+        "ll": null,
+        "ul": null,
+        "latex": "$|\\lambda_{VV}^S|$"
+    },
+    "argLambda_VV_S": {
+        "val": 0.0,
+        "err": 0.001,
+        "fixed": true,
+        "ll": null,
+        "ul": null,
+        "latex": "$\\arg{\\lambda_{VV}^S}$"
+    },
+    "absLambda_VV_P": {
+        "val": 1.0,
+        "err": 0.001,
+        "fixed": true,
+        "ll": null,
+        "ul": null,
+        "latex": "$|\\lambda_{VV}^P|$"
+    },
+    "argLambda_VV_P": {
+        "val": 0.0,
+        "err": 0.001,
+        "fixed": true,
+        "ll": null,
+        "ul": null,
+        "latex": "$\\arg{\\lambda_{VV}^P}$"
     },
     "absLambda_VV_D": {
         "val": 1.0,
