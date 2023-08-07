@@ -24,7 +24,7 @@
         "latex": "$\\Delta \\Gamma_{B_s}$"
     },
     "tau_Du": {
-        "val": 1.509,
+        "val": 0.4103,
         "err": 0.008,
         "fixed": true,
         "ll": 0.0,
@@ -32,7 +32,7 @@
         "latex": "$\\tau_{D^0}$"
     },
     "Dm_Du": {
-        "val": 17.749,
+        "val": 0.00997,
         "err": 0.02,
         "fixed": true,
         "ll": 0.0,
@@ -40,7 +40,7 @@
         "latex": "$\\Delta m_{D^0}$"
     },
     "DG_Du": {
-        "val": 0.074,
+        "val": 0.034,
         "err": 0.006,
         "fixed": true,
         "ll": 0.0,
