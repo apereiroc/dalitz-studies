@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Event.h"
+#include "Selection.h"
 #include "TFile.h"
 #include "TLorentzVector.h"
 #include "TTree.h"
@@ -44,8 +45,6 @@ void LoadToy(const std::string &filename, const std::string &treename,
 
   double pdf_gen = 0.0;
 
-  int index = 0;
-
   // Set branch addresses
   tree->SetBranchAddress("time", &time);
   tree->SetBranchAddress("qtag", &qtag);
@@ -71,34 +70,16 @@ void LoadToy(const std::string &filename, const std::string &treename,
 
   tree->SetBranchAddress("pdf_gen", &pdf_gen);
 
-  tree->SetBranchAddress("index", &index);
-
-  // Report every 5%
-  // const std::size_t n_report = static_cast<std::size_t>((double)n * 0.05);
-
   for (std::size_t i = 0; i < n; ++i) {
     tree->GetEntry(i);
 
-    // if (i % n_report == 0)
-    //   std::cout << "Loading toy event " << i << "/" << n << " ("
-    //             << (double)i / (double)n * 100. << " %)" << std::endl;
-
     Event event(*p4Kp, *p4pim, *p4Km, *p4pip, time, qtag, has_cache);
 
-    // if (Selection_masses(event.GetMassKpPim(), event.GetMassKmPip()) ==
-    // false)
-    //   continue;
-    //
-    // if (Selection_time(event) == false)
-    //   continue;
-
-    // std::cout << "Idx: " << index << std::endl;
-
-    // event.SetIndex(index);
-    // event.SetGenPDF(pdf_gen);
+    if (Selection_masses(event.GetMassKpPim(), event.GetMassKmPip()) == false)
+      continue;
+    event.SetGenPDF(pdf_gen);
 
     event.SetEff(1.0);
-    // event.SetCombPDF(pdf_comb);
 
     if (has_cache) {
       B_VV = {B_VV_S, B_VV_P, B_VV_D};
