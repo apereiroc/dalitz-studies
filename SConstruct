@@ -32,18 +32,24 @@ if platform == "darwin":
     )
     env.Append(
         LIBS=["Minuit2", "MathMore", "qft++", "omp", "boost_program_options"]
-        # LIBS=["Minuit2", "MathMore", "qft++", "cerf", "omp", "boost_program_options","EvtGen"]
     )
-    env.ParseConfig("pkg-config --cflags --libs libcerf")
-    env.Append(LIBPATH=[QFT_LIB, LLVM_LIB, BOOST_LIB])
-
+    env.Append(LIBPATH=[QFT_LIB, BOOST_LIB, LLVM_LIB])
 else:
     env.Append(
-        CXXFLAGS=["-O3", "-Wall", "-Wextra", "-pedantic", "-std=c++17", "-fopenmp"]
+        CXXFLAGS=[
+            "-O3",
+            "-Wall",
+            "-Wextra",
+            "-pedantic",
+            "-std=c++17",
+            "-fopenmp",
+        ]
     )
-    env.Append(LIBS=["Minuit2", "MathMore", "qft++", "cerf", "boost_program_options"])
+    env.Append(
+        LIBS=["Minuit2", "MathMore", "qft++", "boost_program_options"]
+    )
 
-    env.Append(LIBPATH=[QFT_LIB])
+    env.Append(LIBPATH=[QFT_LIB, BOOST_LIB])
     env.Append(LINKFLAGS=["-fopenmp"])
 
 # Set environment
