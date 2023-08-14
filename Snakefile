@@ -3,7 +3,7 @@ import os
 """
   Define all paths from current directory
 """
-code_path = "./"
+code_path = os.getcwd() + '/'
 tuples_path = "tuples/"
 
 phsp_mc_Bs_path = tuples_path + "normalisation/Bs/"
@@ -25,8 +25,8 @@ os.system(create_paths(data_Du_path))
 """
   Simulation config
 """
-nsig_Bs = 3_000 # number of signal events for Bs0
-nsig_Du = 3_000 # number of signal events for D0
+nsig_Bs = 2_000 # number of signal events for Bs0
+nsig_Du = 2_000 # number of signal events for D0
 nint_Bs = 1_000_000 # number of integration events for Bs0
 nint_Du = 1_000_000 # number of integration events for D0
 
@@ -36,3 +36,6 @@ nint_Du = 1_000_000 # number of integration events for D0
 include: "snakefiles/functions.snake"
 include: "snakefiles/integration_events.snake"
 include: "snakefiles/generate_signal.snake"
+include: "snakefiles/fit_signal.snake"
+include: "snakefiles/plot_signal.snake"
+include: "snakefiles/scan_signal.snake"
