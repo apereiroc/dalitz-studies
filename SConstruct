@@ -63,4 +63,4 @@ env.ParseConfig("root-config --libs --cflags --ldflags")
 Export("env")
 
 # Run SConscript files
-SConscript("SConscript")
+env.SConscript('src/SConscript')
