@@ -1,0 +1,26 @@
+"""
+  Rules for plotting the fit of the signal MC
+"""
+import os
+
+rule plot_toy_Bs_from_json_to_root:
+    input:
+        binary = code_path + "src/btokpikpi_CovPlot", 
+        pars = "output/Bs/pars.json",
+        sig = data_Bs_path + "signal_set.root",
+        norm = phsp_mc_Bs_path + "normalisation_set.root",
+    output:
+        "output/Bs/plot.root"
+    run:
+        shell(f"{input.binary} -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
+
+rule plot_toy_Bs_from_root_to_pdf:
+    input:
+        pyscript= code_path + "python/plot_fit_in_5D.py", 
+        file = "output/Bs/plot.root"
+    output:
+        "output/Bs/plot.pdf"
+    run:
+        shell(f"python {input.pyscript} --input-file={input.file} --output-fig={output} --bins=30")
+
+

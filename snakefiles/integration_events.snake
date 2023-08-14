@@ -11,7 +11,7 @@ events_per_job_for_norm_Bs = get_events_per_job(nint_Bs, available_cpu)
 '''
 rule generate_integration_events_single_job_for_Bs:
     input:
-        binary=code_path + "btokpikpi_CovGen_norm",
+        binary=code_path + "src/btokpikpi_CovGen_norm",
     output:
         temp(phsp_mc_Bs_path + "norm-events-Bs-{ipiece}.root")
     log:
