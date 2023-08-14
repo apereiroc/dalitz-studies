@@ -17,30 +17,32 @@ double poly(const double &s, const COEFF_FIRST &c_first,
   return c_first + s * poly(s, c_rest...);
 }
 
-// Limited integral
-inline double norm_expcosh(const double &tmin, const double &tmax,
-                           const double &tau, const double &DG) {
-  const double term1_num =
-      exp(-tmax / tau) *
-      (2.0 * cosh(tmax * DG / 2.0) + DG * tau * sinh(tmax * DG / 2.0));
+// Time integrals
+double norm_expcosh(const double &t, const double &tau, const double &DGon2) {
+  const double tau2 = std::pow(tau, 2.0);
 
-  const double term2_num =
-      exp(-tmin / tau) *
-      (2.0 * cosh(tmin * DG / 2.0) + DG * tau * sinh(tmin * DG / 2.0));
-
-  return (2.0 * tau * term1_num - term2_num) / (-4.0 + std::pow(DG * tau, 2));
+  return (((((tau2 * DGon2) + tau) * exp(2.0 * DGon2 * t)) - (tau2 * DGon2) +
+           tau) *
+          exp((-DGon2 * t) - (t / tau))) /
+         ((2.0 * tau2 * std::pow(DGon2, 2.0)) - 2.0);
 }
 
-// Limited integral
-inline double norm_expsinh(const double &tmin, const double &tmax,
-                           const double &tau, const double &DG) {
-  const double term1_num =
-      exp(-tmax / tau) *
-      (DG * tau * cosh(tmax * DG / 2.0) + 2.0 * sinh(tmax * DG / 2.0));
+double norm_expcosh(const double &t_min, const double &t_max, const double &tau,
+                    const double &DeltaGamma) {
+  return norm_expcosh(t_max, tau, DeltaGamma / 2.0) -
+         norm_expcosh(t_min, tau, DeltaGamma / 2.0);
+}
 
-  const double term2_num =
-      exp(-tmin / tau) *
-      (DG * tau * cosh(tmin * DG / 2.0) + 2.0 * sinh(tmin * DG / 2.0));
+double norm_expsinh(const double &t, const double &tau, const double &DGon2) {
+  return (tau *
+          ((((tau * DGon2) + 1.0) * exp(2.0 * DGon2 * t)) + (tau * DGon2) -
+           1.0) *
+          exp((-DGon2 * t) - (t / tau))) /
+         (2.0 * (std::pow(tau * DGon2, 2.0) - 1.0));
+}
 
-  return (2.0 * tau * term1_num - term2_num) / (-4.0 + std::pow(DG * tau, 2));
+double norm_expsinh(const double &t_min, const double &t_max, const double &tau,
+                    const double &DeltaGamma) {
+  return norm_expsinh(t_max, tau, DeltaGamma / 2.0) -
+         norm_expsinh(t_min, tau, DeltaGamma / 2.0);
 }
