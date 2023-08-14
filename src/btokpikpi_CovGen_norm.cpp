@@ -41,6 +41,7 @@ int main(const int argc, const char *argv[]) {
   generator.SetDecay(P, masses.size(), masses.data());
 
   std::vector<Event> gen;
+  gen.reserve(nevents);
   for (unsigned int i = 0; i < nevents; ++i) {
     while (true) {
       generate_flat_event(generator);

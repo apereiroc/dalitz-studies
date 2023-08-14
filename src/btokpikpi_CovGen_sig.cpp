@@ -1,10 +1,12 @@
 #include <boost/program_options.hpp>
 #include <filesystem>
+#include <iostream>
 
 #include "AmpVV.h"
 #include "Data.h"
 #include "FitParameters.h"
 #include "GenUtil.h"
+#include "Par.h"
 #include "Selection.h"
 #include "SigPDF.h"
 
@@ -12,7 +14,8 @@ namespace po = boost::program_options;
 
 int main(const int argc, const char *argv[]) {
   std::string inPars, outFile;
-  unsigned int seed, ntries;
+  unsigned int seed, nevents;
+  double hmax;
 
   po::options_description desc{"Options"};
 
@@ -20,9 +23,10 @@ int main(const int argc, const char *argv[]) {
       "input-pars,i", po::value<std::string>(&inPars), "Input parameter file")(
       "output-file,o", po::value<std::string>(&outFile), "Output file")(
       "seed,s", po::value<unsigned int>(&seed)->default_value(123),
-      "Seed for RNG")("ntries,n",
-                      po::value<unsigned int>(&ntries)->default_value(10000),
-                      "Number of events to be generated");
+      "Seed for RNG")("nevents,n",
+                      po::value<unsigned int>(&nevents)->default_value(300),
+                      "Number of events to be generated")(
+      "hmax,h", po::value<double>(&hmax), "Maximum height of the distribution");
 
   po::variables_map args;
   po::store(po::parse_command_line(argc, argv, desc), args);
@@ -36,18 +40,16 @@ int main(const int argc, const char *argv[]) {
   // Load fit parameters
   FitParameters mn_param;
   mn_param.LoadParFromJSON(inPars);
-
   const std::vector<double> &par = mn_param.Params();
 
   // Load amplitudes
-  // Load amplitudes
-  AmpVV ampVV_S("K*(892)0 K*(892)0b [S]", SpinVV::S, abs_VV_S, abs_VV_S,
+  AmpVV ampVV_S("K*(892)0 K*(892)0b [S]", SpinVV::S, abs_VV_S, arg_VV_S,
                 absLambda_VV_S, argLambda_VV_S);
 
-  AmpVV ampVV_P("K*(892)0 K*(892)0b [P]", SpinVV::P, abs_VV_P, abs_VV_P,
+  AmpVV ampVV_P("K*(892)0 K*(892)0b [P]", SpinVV::P, abs_VV_P, arg_VV_P,
                 absLambda_VV_P, argLambda_VV_P);
 
-  AmpVV ampVV_D("K*(892)0 K*(892)0b [D]", SpinVV::D, abs_VV_D, abs_VV_D,
+  AmpVV ampVV_D("K*(892)0 K*(892)0b [D]", SpinVV::D, abs_VV_D, arg_VV_D,
                 absLambda_VV_D, argLambda_VV_D);
 
   ampVV_S.SetPropagator(PropConf::BW);
@@ -60,8 +62,6 @@ int main(const int argc, const char *argv[]) {
   SigPDF pdf_sig(amps, tau_Bs, DG_Bs, Dm_Bs);
   pdf_sig.NormTime(par);
 
-  double amp2_max = 2.0e-20;
-
   // Prepare phase space generator
   TLorentzVector P(0.0, 0.0, 0.0, mass_Bs);
 
@@ -71,8 +71,12 @@ int main(const int argc, const char *argv[]) {
   gRandom->SetSeed(seed);
   generator.SetDecay(P, masses.size(), masses.data());
 
+  std::vector<Event> gen;
+  gen.reserve(nevents);
+
   // Start generation
-  for (unsigned int i = 0; i < ntries; ++i) {
+  for (unsigned int i = 0; i < nevents; ++i) {
+    std::cout << "Event: " << i << std::endl;
     while (true) {
       generate_flat_event(generator);
 
@@ -95,31 +99,40 @@ int main(const int argc, const char *argv[]) {
                   *generator.GetDecay(2), *generator.GetDecay(3), time_gen,
                   qtag_gen);
 
+      const double height_gen =
+          gRandom->Uniform(hmax) * std::exp(-time_gen / tauLong);
+
       // Resize amplitude container inside event
       pdf_sig.ResizeEvents(event);
 
       // Insert amplitudes into event
       pdf_sig.Amps(event, par);
 
+      // Get PDF
       const double pdf_gen = pdf_sig.GetPDF(event, time_gen, qtag_gen, par);
 
-      if (pdf_gen > amp2_max) {
-        amp2_max = pdf_gen;
+      if (pdf_gen > hmax) {
+        std::cout << "ERROR: Generated PDF value " << pdf_gen
+                  << ", larger than maximum " << hmax << std::endl;
+        std::exit(1);
       }
 
+      if (height_gen < pdf_gen)
+        event.SetGenPDF(pdf_gen);
+      else
+        continue;
+
+      gen.push_back(event);
       break;
     }
   }
 
-  // To be safe
-  amp2_max *= 6.0;
+  const std::string fname =
+      outFile.size() > 0
+          ? outFile
+          : "dat/bdstokppimkmpip-norm-" + std::to_string(seed) + ".root";
 
-  std::ofstream file;
-
-  file.open(outFile);
-  file << amp2_max << std::endl;
-
-  file.close();
+  SaveData(fname, gen);
 
   return 0;
 }
