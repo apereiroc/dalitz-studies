@@ -15,6 +15,5 @@ public:
 
   inline virtual std::complex<double>
   evaluate(const double &x, const std::vector<double> &par) const = 0;
-  inline virtual void add_parameters(std::vector<Par> &par_idx,
-                              std::vector<double> &par) const = 0;
+  inline virtual void add_parameters(std::vector<Par> &par_idx) const = 0;
 };

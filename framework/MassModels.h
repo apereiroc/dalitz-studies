@@ -28,12 +28,8 @@ public:
   }
 
   using Propagator::add_parameters;
-  inline virtual void add_parameters(std::vector<Par> &par_idx,
-                                     std::vector<double> &par) const {
+  inline virtual void add_parameters(std::vector<Par> &par_idx) const {
     par_idx.push_back(Par::mass_kst0892);
     par_idx.push_back(Par::width_kst0892);
-
-    par =
-        std::vector<double>(par_idx.size(), std::numeric_limits<double>::max());
   }
 };
