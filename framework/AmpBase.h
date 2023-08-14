@@ -22,17 +22,7 @@ public:
   AmpBase(const std::string &name, const Par &idx_abs, const Par &idx_arg,
           const Par &idx_absLambda, const Par &idx_argLambda)
       : name(name), idx_abs(idx_abs), idx_arg(idx_arg),
-        idx_absLambda(idx_absLambda), idx_argLambda(idx_argLambda) {
-    // Store parameter indices
-    par_idx.push_back(idx_abs);
-    par_idx.push_back(idx_arg);
-    par_idx.push_back(idx_absLambda);
-    par_idx.push_back(idx_argLambda);
-
-    // Used to find out if the parameters have changed
-    par =
-        std::vector<double>(par_idx.size(), std::numeric_limits<double>::max());
-  }
+        idx_absLambda(idx_absLambda), idx_argLambda(idx_argLambda) {}
 
   // Pure virtual method to obtain the dynamical component
   virtual inline std::complex<double> GetAmp(const Event &event,

@@ -8,6 +8,8 @@
 #include "PropUtil.h"
 #include "Propagator.h"
 
+#include "FitParameters.h"
+
 class AmpVV : public AmpBase {
 private:
   const unsigned int L_conf;
@@ -22,7 +24,11 @@ public:
   inline void SetPropagator(const PropConf &conf) {
     propagator = NewPropagator(conf);
 
-    propagator->add_parameters(this->par_idx, this->par);
+    propagator->add_parameters(this->par_idx);
+
+    // Used to find out if the parameters have changed
+    par =
+        std::vector<double>(par_idx.size(), std::numeric_limits<double>::max());
   }
 
   using AmpBase::GetAmp;
