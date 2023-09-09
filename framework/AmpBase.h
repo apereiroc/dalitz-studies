@@ -3,6 +3,7 @@
 #include <complex>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "CPUtil.h"
@@ -19,9 +20,9 @@ protected:
   mutable std::vector<double> par;
 
 public:
-  AmpBase(const std::string &name, const Par &idx_abs, const Par &idx_arg,
+  AmpBase(std::string name, const Par &idx_abs, const Par &idx_arg,
           const Par &idx_absLambda, const Par &idx_argLambda)
-      : name(name), idx_abs(idx_abs), idx_arg(idx_arg),
+      : name(std::move(name)), idx_abs(idx_abs), idx_arg(idx_arg),
         idx_absLambda(idx_absLambda), idx_argLambda(idx_argLambda) {}
 
   // Pure virtual method to obtain the dynamical component
