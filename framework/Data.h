@@ -10,13 +10,13 @@
 void LoadToy(const std::string &filename, const std::string &treename,
              std::vector<Event> &data, const bool &has_cache = false) {
   // Read ROOT file
-  TFile *const file = new TFile(filename.c_str());
+  auto *const file = new TFile(filename.c_str());
   if (file->IsZombie()) {
     std::cout << "Error opening TFile " << file->GetName() << std::endl;
     exit(1);
   }
 
-  TTree *const tree = dynamic_cast<TTree *>(file->Get(treename.c_str()));
+  auto *const tree = dynamic_cast<TTree *>(file->Get(treename.c_str()));
   if (tree == nullptr) {
     std::cout << "There's no tree called " << treename << " in " << filename
               << std::endl;
@@ -33,7 +33,7 @@ void LoadToy(const std::string &filename, const std::string &treename,
   double time;
   int qtag;
 
-  TLorentzVector *p4Kp = NULL, *p4pim = NULL, *p4Km = NULL, *p4pip = NULL;
+  TLorentzVector *p4Kp = nullptr, *p4pim = nullptr, *p4Km = nullptr, *p4pip = nullptr;
 
   double B_VV_S, B_VV_P, B_VV_D;
   double B_VV_S_CP, B_VV_P_CP, B_VV_D_CP;
@@ -75,7 +75,9 @@ void LoadToy(const std::string &filename, const std::string &treename,
 
     Event event(*p4Kp, *p4pim, *p4Km, *p4pip, time, qtag, has_cache);
 
-    if (Selection_masses(event.GetMassKpPim(), event.GetMassKmPip()) == false)
+    const bool inRange = Selection_masses(event.GetMassKpPim(), event.GetMassKmPip());
+
+    if (not inRange)
       continue;
     event.SetGenPDF(pdf_gen);
 
@@ -100,9 +102,9 @@ void LoadToy(const std::string &filename, const std::string &treename,
 }
 
 void SaveData(const std::string &filename, const std::vector<Event> &data) {
-  TFile *const file = new TFile(filename.c_str(), "RECREATE");
+  auto *const file = new TFile(filename.c_str(), "RECREATE");
 
-  TTree *const tree = new TTree("fitTree", "");
+  auto *const tree = new TTree("fitTree", "");
 
   // Declare branches
   double time;
@@ -155,9 +157,7 @@ void SaveData(const std::string &filename, const std::vector<Event> &data) {
 
   tree->Branch("pdf_gen", &pdf_gen);
 
-  for (unsigned int i = 0; i < data.size(); ++i) {
-    const Event &event = data[i];
-
+  for (const auto & event : data) {
     time = event.GetTime();
     qtag = event.GetQtag();
     p4Kp = event.Getp4(CPConf::A)[0].Getp4ROOT();
