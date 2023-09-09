@@ -7,18 +7,20 @@
 #include "Minimal4Vector.h"
 #include "PropUtil.h"
 #include "Propagator.h"
+#include "TopoVV.h"
 
 #include "FitParameters.h"
 
 class AmpVV : public AmpBase {
 private:
-  const unsigned int L_conf;
+  const SpinVV L_conf;
   std::shared_ptr<Propagator> propagator = nullptr;
 
 public:
-  AmpVV(const std::string &name, const unsigned int &L_conf, const Par &idx_abs,
+  AmpVV(std::string name, const SpinVV &L_conf, const Par &idx_abs,
         const Par &idx_arg, const Par &idx_absLambda, const Par &idx_argLambda)
-      : AmpBase(name, idx_abs, idx_arg, idx_absLambda, idx_argLambda),
+      : AmpBase(std::move(name), idx_abs, idx_arg, idx_absLambda,
+                idx_argLambda),
         L_conf(L_conf) {}
 
   inline void SetPropagator(const PropConf &conf) {
