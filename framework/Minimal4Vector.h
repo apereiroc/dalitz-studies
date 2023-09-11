@@ -7,40 +7,51 @@
    Minimal 4-vector class designed to save memory and time
  */
 class Minimal4Vector {
+private:
+    static double SetMass(const double &E, const double &px, const double &py,
+                          const double &pz) {
+        return sqrt(E * E - px * px - py * py - pz * pz);
+    }
+
+    double _px, _py, _pz, _m, _E;
 public:
   Minimal4Vector() = default;
 
-  Minimal4Vector(const TLorentzVector &p4)
+  explicit Minimal4Vector(const TLorentzVector &p4)
       : Minimal4Vector(p4.E(), p4.Px(), p4.Py(), p4.Pz()) {}
 
   Minimal4Vector(const double &E, const double &px, const double &py,
                  const double &pz)
-      : _E(E), _px(px), _py(py), _pz(pz), _m(SetMass(E, px, py, pz)) {}
+      : _px(px), _py(py), _pz(pz), _m(SetMass(E, px, py, pz)), _E(E) {}
 
   Minimal4Vector(const double &px, const double &py, const double &pz)
-      : _px(px), _py(py), _pz(pz) {}
+      : _px(px), _py(py), _pz(pz), _m(0), _E(P()) {}
 
-  double E() const { return _E; }
+  [[nodiscard]] double E() const { return _E; }
 
-  double Px() const { return _px; }
+  [[nodiscard]] double P() const {
+      return std::sqrt(_px * _px + _py * _py + _pz * _pz);
+  }
 
-  double Py() const { return _py; }
+  [[nodiscard]] double Px() const { return _px; }
 
-  double Pz() const { return _pz; }
+  [[nodiscard]] double Py() const { return _py; }
 
-  TLorentzVector Getp4ROOT() const { return TLorentzVector(_px, _py, _pz, _E); }
+  [[nodiscard]] double Pz() const { return _pz; }
 
-  double M() const { return _m; }
+  [[nodiscard]] TLorentzVector Getp4ROOT() const { return {_px, _py, _pz, _E}; }
 
-  double s() const { return _m * _m; }
+  [[nodiscard]] double M() const { return _m; }
+
+  [[nodiscard]] double s() const { return _m * _m; }
 
   void SetMassAndEnergy(const double &mass) {
     _m = mass;
-    _E = std::sqrt(mass * mass + _px * _px + _py * _py + _pz * _pz);
+      _E = std::sqrt(mass * mass + _px * _px + _py * _py + _pz * _pz);
   }
 
-  Minimal4Vector FlipParity() const {
-    return Minimal4Vector(_E, -_px, -_py, -_pz);
+  [[nodiscard]] Minimal4Vector FlipParity() const {
+    return {_E, -_px, -_py, -_pz};
   }
 
   Minimal4Vector operator+(const Minimal4Vector &other) const {
@@ -50,11 +61,5 @@ public:
     return p4;
   }
 
-private:
-  double SetMass(const double &E, const double &px, const double &py,
-                 const double &pz) {
-    return sqrt(E * E - px * px - py * py - pz * pz);
-  }
 
-  double _E, _px, _py, _pz, _m;
 };
