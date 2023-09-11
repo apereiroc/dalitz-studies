@@ -98,26 +98,26 @@ public:
 
   FitParameters &operator+=(const FitParameters &other) {
     for (unsigned int i = 0; i < other.Params().size(); ++i) {
-      const std::string name = other.GetName(i);
+      const std::string& name = other.GetName(i);
       const double value = other.Value(i);
       const double error = other.Error(i);
 
       this->Add(name, value, error);
 
       double ll = 0.0, ul = 0.0;
-      if (other.Parameter(i).HasLowerLimit() == true)
+      if (other.Parameter(i).HasLowerLimit())
         ll = other.Parameter(i).LowerLimit();
-      if (other.Parameter(i).HasUpperLimit() == true)
+      if (other.Parameter(i).HasUpperLimit())
         ul = other.Parameter(i).UpperLimit();
 
-      if (other.Parameter(i).HasLowerLimit() == true &&
-          other.Parameter(i).HasUpperLimit() == true)
+      if (other.Parameter(i).HasLowerLimit() &&
+          other.Parameter(i).HasUpperLimit())
         this->SetLimits(name, ll, ul);
-      else if (other.Parameter(i).HasLowerLimit() == true &&
-               other.Parameter(i).HasUpperLimit() == false)
+      else if (other.Parameter(i).HasLowerLimit() &&
+               !other.Parameter(i).HasUpperLimit())
         this->SetLowerLimit(name, ll);
-      else if (other.Parameter(i).HasLowerLimit() == false &&
-               other.Parameter(i).HasUpperLimit() == true)
+      else if (!other.Parameter(i).HasLowerLimit() &&
+               other.Parameter(i).HasUpperLimit())
         this->SetUpperLimit(name, ul);
       else {
       }
@@ -148,7 +148,7 @@ private:
     for (unsigned int i = 0; i < par_min.Params().size(); ++i) {
       this->SetValue(i, par_min.Value(i));
       this->SetError(i, par_min.Error(i));
-      if (par_min.Parameter(i).IsFixed() == true)
+      if (par_min.Parameter(i).IsFixed())
         this->Fix(i);
     }
   }
