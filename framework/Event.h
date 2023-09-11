@@ -16,10 +16,10 @@ private:
   double _time;
   int _qtag;
 
-  std::array<Minimal4Vector, nBody> _p4, _p4_CP;
-  TopoVV _VV;
+  std::array<Minimal4Vector, nBody> _p4{}, _p4_CP{};
+  TopoVV VV;
   Eigen::VectorXcd _a, _abar;
-  double _theta1, _theta2, _chi;
+  double _theta1{}, _theta2{}, _chi{};
   double _mKpPim, _mKmPip;
 
   double _eff = 1.0;
@@ -42,8 +42,8 @@ public:
       _p4_CP[CPMap(CPConf::Abar, ordering)[i]] = _p4[i].FlipParity();
 
     if (has_cache == false) {
-      _VV.AmpsBarrier(_p4, _p4_CP);
-      _VV.AmpsSpin(_p4, _p4_CP);
+      VV.AmpsBarrier(_p4, _p4_CP);
+      VV.AmpsSpin(_p4, _p4_CP);
     }
 
     Helicities();
@@ -69,8 +69,8 @@ public:
       _p4_CP[CPMap(CPConf::Abar, ordering)[i]] = _p4[i].FlipParity();
 
     if (has_cache == false) {
-      _VV.AmpsBarrier(_p4, _p4_CP);
-      _VV.AmpsSpin(_p4, _p4_CP);
+      VV.AmpsBarrier(_p4, _p4_CP);
+      VV.AmpsSpin(_p4, _p4_CP);
     }
 
     Helicities();
@@ -98,8 +98,8 @@ public:
       _p4_CP[CPMap(CPConf::Abar, ordering)[i]] = _p4[i].FlipParity();
 
     if (has_cache == false) {
-      _VV.AmpsBarrier(_p4, _p4_CP);
-      _VV.AmpsSpin(_p4, _p4_CP);
+      VV.AmpsBarrier(_p4, _p4_CP);
+      VV.AmpsSpin(_p4, _p4_CP);
     }
 
     Helicities();
@@ -107,19 +107,19 @@ public:
     _mKmPip = (_p4[2] + _p4[3]).M();
   }
 
-  const double &GetGenPDF() const { return _gen_pdf; }
+  [[nodiscard]] const double &GetGenPDF() const { return _gen_pdf; }
 
   void SetGenPDF(const double &gen_pdf) { _gen_pdf = gen_pdf; }
 
-  const double &GetTime() const { return _time; }
+  [[nodiscard]] const double &GetTime() const { return _time; }
 
   void SetTime(const double &time) { _time = time; }
 
-  const int &GetQtag() const { return _qtag; }
+  [[nodiscard]] const int &GetQtag() const { return _qtag; }
 
   void SetQtag(const int &qtag) { _qtag = qtag; }
 
-  const std::array<Minimal4Vector, nBody> &
+  [[nodiscard]] const std::array<Minimal4Vector, nBody> &
   Getp4(const unsigned int &CP_conf) const {
     switch (CP_conf) {
     case CPConf::A:
@@ -133,7 +133,7 @@ public:
     }
   }
 
-  const Minimal4Vector &Getp4Kp(const unsigned int &CP_conf) const {
+  [[nodiscard]] const Minimal4Vector &Getp4Kp(const unsigned int &CP_conf) const {
     switch (CP_conf) {
     case CPConf::A:
       return _p4[0];
@@ -146,7 +146,7 @@ public:
     }
   }
 
-  const Minimal4Vector &Getp4pim(const unsigned int &CP_conf) const {
+  [[nodiscard]] const Minimal4Vector &Getp4pim(const unsigned int &CP_conf) const {
     switch (CP_conf) {
     case CPConf::A:
       return _p4[1];
@@ -159,7 +159,7 @@ public:
     }
   }
 
-  const Minimal4Vector &Getp4Km(const unsigned int &CP_conf) const {
+  [[nodiscard]] const Minimal4Vector &Getp4Km(const unsigned int &CP_conf) const {
     switch (CP_conf) {
     case CPConf::A:
       return _p4[2];
@@ -172,7 +172,7 @@ public:
     }
   }
 
-  const Minimal4Vector &Getp4pip(const unsigned int &CP_conf) const {
+  [[nodiscard]] const Minimal4Vector &Getp4pip(const unsigned int &CP_conf) const {
     switch (CP_conf) {
     case CPConf::A:
       return _p4[3];
@@ -185,11 +185,11 @@ public:
     }
   }
 
-  TopoVV &GetToSetVV() { return _VV; }
+  TopoVV &GetToSetVV() { return VV; }
 
-  const TopoVV &GetVV() const { return _VV; }
+  [[nodiscard]] const TopoVV &GetVV() const { return VV; }
 
-  const Eigen::VectorXcd &GetAmps(const unsigned int &CP_conf) const {
+  [[nodiscard]] const Eigen::VectorXcd &GetAmps(const unsigned int &CP_conf) const {
     switch (CP_conf) {
     case CPConf::A:
       return _a;
@@ -211,33 +211,33 @@ public:
     }
   }
 
-  double GetTheta1() const { return _theta1; }
+  [[nodiscard]] double GetTheta1() const { return _theta1; }
 
-  double GetTheta2() const { return _theta2; }
+  [[nodiscard]] double GetTheta2() const { return _theta2; }
 
-  double GetChi() const { return _chi; }
+  [[nodiscard]] double GetChi() const { return _chi; }
 
-  double GetCosTheta1() const { return cos(_theta1); }
+  [[nodiscard]] double GetCosTheta1() const { return cos(_theta1); }
 
-  double GetCosTheta2() const { return cos(_theta2); }
+  [[nodiscard]] double GetCosTheta2() const { return cos(_theta2); }
 
-  double GetSinTheta1() const { return sin(_theta1); }
+  [[nodiscard]] double GetSinTheta1() const { return sin(_theta1); }
 
-  double GetSinTheta2() const { return sin(_theta2); }
+  [[nodiscard]] double GetSinTheta2() const { return sin(_theta2); }
 
-  double GetSin2Theta1() const { return sin(2.0 * _theta1); }
+  [[nodiscard]] double GetSin2Theta1() const { return sin(2.0 * _theta1); }
 
-  double GetSin2Theta2() const { return sin(2.0 * _theta2); }
+  [[nodiscard]] double GetSin2Theta2() const { return sin(2.0 * _theta2); }
 
-  double GetSinChi() const { return sin(_chi); }
+  [[nodiscard]] double GetSinChi() const { return sin(_chi); }
 
-  double GetCosChi() const { return cos(_chi); }
+  [[nodiscard]] double GetCosChi() const { return cos(_chi); }
 
-  double GetSin2Chi() const { return sin(2.0 * _chi); }
+  [[nodiscard]] double GetSin2Chi() const { return sin(2.0 * _chi); }
 
-  double GetMassKpPim() const { return (_p4[0] + _p4[1]).M(); }
+  [[nodiscard]] double GetMassKpPim() const { return (_p4[0] + _p4[1]).M(); }
 
-  double GetMassKmPip() const { return (_p4[2] + _p4[3]).M(); }
+  [[nodiscard]] double GetMassKmPip() const { return (_p4[2] + _p4[3]).M(); }
 
   void Helicities() {
     const TLorentzVector p4Kp = _p4[0].Getp4ROOT();
@@ -282,7 +282,7 @@ public:
     _chi = atan2((V1_norm.Cross(V2_norm)).Dot(chi_norm), V1_norm.Dot(V2_norm));
   }
 
-  const double &GetEff() const { return _eff; }
+  [[nodiscard]] const double &GetEff() const { return _eff; }
 
   void SetEff(const double &eff) { _eff = eff; }
 
