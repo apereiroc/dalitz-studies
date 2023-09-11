@@ -14,7 +14,7 @@ private:
 
   double normExpcosh, normExpsinh;
 
-  mutable double _norm_amp2, _norm_astarabarRe;
+  mutable double _norm_amp2{}, _norm_astarabarRe{};
   mutable double _fit_frac[_nAmps * _nAmps] = {};
 
   mutable std::complex<double> _c[_nAmps] = {};
