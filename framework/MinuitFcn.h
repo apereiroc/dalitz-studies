@@ -49,14 +49,14 @@ public:
         logL += std::log(pdf); //* event.GetSWeight();
     }
 
-    std::cout << "-2logL = " << (-2.0 * logL) - _best_min << std::endl;
+    // std::cout << "-2logL = " << (-2.0 * logL) - _best_min << std::endl;
 
     return (-2.0 * logL) - _best_min;
   }
 
   virtual double Up() const { return _error_def; }
 
-  double GetBestMin() const { return _best_min; }
+  [[nodiscard]] double GetBestMin() const { return _best_min; }
 
   void SetBestMin(const double &best_min) { _best_min += best_min; }
 };
