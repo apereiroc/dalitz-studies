@@ -74,7 +74,7 @@ int main(const int argc, const char *argv[]) {
   }
 
   const std::string fname =
-      outFile.size() > 0
+      !outFile.empty()
           ? outFile
           : "dat/bdstokppimkmpip-norm-" + std::to_string(seed) + ".root";
 
