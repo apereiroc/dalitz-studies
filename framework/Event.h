@@ -7,6 +7,7 @@
 #include "NbodyUtil.h"
 #include "TLorentzVector.h"
 #include "TopoVV.h"
+#include "TopoVS.h"
 #include <Eigen/Core>
 
 class Event {
@@ -18,6 +19,7 @@ private:
 
   std::array<Minimal4Vector, nBody> _p4{}, _p4_CP{};
   TopoVV VV;
+  TopoVS VS;
   Eigen::VectorXcd _a, _abar;
   double _theta1{}, _theta2{}, _chi{};
   double _mKpPim, _mKmPip;
@@ -32,7 +34,7 @@ public:
   Event(const TLorentzVector &p4Kp, const TLorentzVector &p4pim,
         const TLorentzVector &p4Km, const TLorentzVector &p4pip,
         const double &time, const int &qtag, const bool &has_cache = false)
-      : _time(time), _qtag(qtag) {
+          : _time(time), _qtag(qtag) {
     _p4[0] = Minimal4Vector(p4Kp);
     _p4[1] = Minimal4Vector(p4pim);
     _p4[2] = Minimal4Vector(p4Km);
@@ -41,9 +43,11 @@ public:
     for (unsigned int i = 0; i < nBody; ++i)
       _p4_CP[CPMap(CPConf::Abar, ordering)[i]] = _p4[i].FlipParity();
 
-    if (has_cache == false) {
+    if (!has_cache) {
       VV.AmpsBarrier(_p4, _p4_CP);
       VV.AmpsSpin(_p4, _p4_CP);
+      VS.AmpsBarrier(_p4, _p4_CP);
+      VS.AmpsSpin(_p4, _p4_CP);
     }
 
     Helicities();
@@ -59,7 +63,7 @@ public:
         const double &pip_PX, const double &pip_PY, const double &pip_PZ,
         const double &pip_E, const double &time, const int &qtag,
         const bool &has_cache = false)
-      : _time(time), _qtag(qtag) {
+          : _time(time), _qtag(qtag) {
     _p4[0] = Minimal4Vector(Kp_E, Kp_PX, Kp_PY, Kp_PZ);
     _p4[1] = Minimal4Vector(pim_E, pim_PX, pim_PY, pim_PZ);
     _p4[2] = Minimal4Vector(Km_E, Km_PX, Km_PY, Km_PZ);
@@ -68,9 +72,11 @@ public:
     for (unsigned int i = 0; i < nBody; ++i)
       _p4_CP[CPMap(CPConf::Abar, ordering)[i]] = _p4[i].FlipParity();
 
-    if (has_cache == false) {
+    if (!has_cache) {
       VV.AmpsBarrier(_p4, _p4_CP);
       VV.AmpsSpin(_p4, _p4_CP);
+      VS.AmpsBarrier(_p4, _p4_CP);
+      VS.AmpsSpin(_p4, _p4_CP);
     }
 
     Helicities();
@@ -83,7 +89,7 @@ public:
         const double &Km_PX, const double &Km_PY, const double &Km_PZ,
         const double &pip_PX, const double &pip_PY, const double &pip_PZ,
         const double &time, const int &qtag, const bool &has_cache = false)
-      : _time(time), _qtag(qtag) {
+          : _time(time), _qtag(qtag) {
     _p4[0] = Minimal4Vector(Kp_PX, Kp_PY, Kp_PZ);
     _p4[1] = Minimal4Vector(pim_PX, pim_PY, pim_PZ);
     _p4[2] = Minimal4Vector(Km_PX, Km_PY, Km_PZ);
@@ -97,9 +103,11 @@ public:
     for (unsigned int i = 0; i < nBody; ++i)
       _p4_CP[CPMap(CPConf::Abar, ordering)[i]] = _p4[i].FlipParity();
 
-    if (has_cache == false) {
+    if (!has_cache) {
       VV.AmpsBarrier(_p4, _p4_CP);
       VV.AmpsSpin(_p4, _p4_CP);
+      VS.AmpsBarrier(_p4, _p4_CP);
+      VS.AmpsSpin(_p4, _p4_CP);
     }
 
     Helicities();
@@ -122,92 +130,101 @@ public:
   [[nodiscard]] const std::array<Minimal4Vector, nBody> &
   Getp4(const unsigned int &CP_conf) const {
     switch (CP_conf) {
-    case CPConf::A:
-      return _p4;
-    case CPConf::Abar:
-      return _p4_CP;
-    default:
-      std::cout << "ERROR: Invalid CP_conf = " << CP_conf << " set"
-                << std::endl;
-      exit(1);
+      case CPConf::A:
+        return _p4;
+      case CPConf::Abar:
+        return _p4_CP;
+      default:
+        std::cout << "ERROR: Invalid CP_conf = " << CP_conf << " set"
+                  << std::endl;
+        exit(1);
     }
   }
 
-  [[nodiscard]] const Minimal4Vector &Getp4Kp(const unsigned int &CP_conf) const {
+  [[nodiscard]] const Minimal4Vector &
+  Getp4Kp(const unsigned int &CP_conf) const {
     switch (CP_conf) {
-    case CPConf::A:
-      return _p4[0];
-    case CPConf::Abar:
-      return _p4_CP[0];
-    default:
-      std::cout << "ERROR: Invalid CP_conf = " << CP_conf << " set"
-                << std::endl;
-      exit(1);
+      case CPConf::A:
+        return _p4[0];
+      case CPConf::Abar:
+        return _p4_CP[0];
+      default:
+        std::cout << "ERROR: Invalid CP_conf = " << CP_conf << " set"
+                  << std::endl;
+        exit(1);
     }
   }
 
-  [[nodiscard]] const Minimal4Vector &Getp4pim(const unsigned int &CP_conf) const {
+  [[nodiscard]] const Minimal4Vector &
+  Getp4pim(const unsigned int &CP_conf) const {
     switch (CP_conf) {
-    case CPConf::A:
-      return _p4[1];
-    case CPConf::Abar:
-      return _p4_CP[1];
-    default:
-      std::cout << "ERROR: Invalid CP_conf = " << CP_conf << " set"
-                << std::endl;
-      exit(1);
+      case CPConf::A:
+        return _p4[1];
+      case CPConf::Abar:
+        return _p4_CP[1];
+      default:
+        std::cout << "ERROR: Invalid CP_conf = " << CP_conf << " set"
+                  << std::endl;
+        exit(1);
     }
   }
 
-  [[nodiscard]] const Minimal4Vector &Getp4Km(const unsigned int &CP_conf) const {
+  [[nodiscard]] const Minimal4Vector &
+  Getp4Km(const unsigned int &CP_conf) const {
     switch (CP_conf) {
-    case CPConf::A:
-      return _p4[2];
-    case CPConf::Abar:
-      return _p4_CP[2];
-    default:
-      std::cout << "ERROR: Invalid CP_conf = " << CP_conf << " set"
-                << std::endl;
-      exit(1);
+      case CPConf::A:
+        return _p4[2];
+      case CPConf::Abar:
+        return _p4_CP[2];
+      default:
+        std::cout << "ERROR: Invalid CP_conf = " << CP_conf << " set"
+                  << std::endl;
+        exit(1);
     }
   }
 
-  [[nodiscard]] const Minimal4Vector &Getp4pip(const unsigned int &CP_conf) const {
+  [[nodiscard]] const Minimal4Vector &
+  Getp4pip(const unsigned int &CP_conf) const {
     switch (CP_conf) {
-    case CPConf::A:
-      return _p4[3];
-    case CPConf::Abar:
-      return _p4_CP[3];
-    default:
-      std::cout << "ERROR: Invalid CP_conf = " << CP_conf << " set"
-                << std::endl;
-      exit(1);
+      case CPConf::A:
+        return _p4[3];
+      case CPConf::Abar:
+        return _p4_CP[3];
+      default:
+        std::cout << "ERROR: Invalid CP_conf = " << CP_conf << " set"
+                  << std::endl;
+        exit(1);
     }
   }
 
   TopoVV &GetToSetVV() { return VV; }
 
+  TopoVS &GetToSetVS() { return VS; }
+
   [[nodiscard]] const TopoVV &GetVV() const { return VV; }
 
-  [[nodiscard]] const Eigen::VectorXcd &GetAmps(const unsigned int &CP_conf) const {
+  [[nodiscard]] const TopoVS &GetVS() const { return VS; }
+
+  [[nodiscard]] const Eigen::VectorXcd &
+  GetAmps(const unsigned int &CP_conf) const {
     switch (CP_conf) {
-    case CPConf::A:
-      return _a;
-    case CPConf::Abar:
-      return _abar;
-    default:
-      exit(1);
+      case CPConf::A:
+        return _a;
+      case CPConf::Abar:
+        return _abar;
+      default:
+        exit(1);
     }
   }
 
-  Eigen::VectorXcd &GetToSetAmps(const unsigned int &CP_conf) {
+  Eigen::VectorXcd &GetToSetAmps(const CPConf &CP_conf) {
     switch (CP_conf) {
-    case CPConf::A:
-      return _a;
-    case CPConf::Abar:
-      return _abar;
-    default:
-      exit(1);
+      case CPConf::A:
+        return _a;
+      case CPConf::Abar:
+        return _abar;
+      default:
+        exit(1);
     }
   }
 
@@ -277,7 +294,7 @@ public:
     const TVector3 V1_norm = p4Kp_B.Vect().Cross(p4pim_B.Vect());
     const TVector3 V2_norm = p4Km_B.Vect().Cross(p4pip_B.Vect());
     const TVector3 chi_norm =
-        (p4Km_B + p4pip_B).Vect() * (1.0 / (p4Km_B + p4pip_B).Vect().Mag());
+            (p4Km_B + p4pip_B).Vect() * (1.0 / (p4Km_B + p4pip_B).Vect().Mag());
 
     _chi = atan2((V1_norm.Cross(V2_norm)).Dot(chi_norm), V1_norm.Dot(V2_norm));
   }

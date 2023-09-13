@@ -43,6 +43,14 @@ void LoadToy(const std::string &filename, const std::string &treename,
   std::complex<double> *S_VV_S_CP = NULL, *S_VV_P_CP = NULL, *S_VV_D_CP = NULL;
   std::array<std::complex<double>, nVVConf> S_VV, S_VV_CP;
 
+  double B_VS_VS, B_VS_SV;
+  double B_VS_VS_CP, B_VS_SV_CP;
+  std::array<double, nTopoVSConf> B_VS, B_VS_CP;
+
+  std::complex<double> *S_VS_VS = NULL, *S_VS_SV = NULL;
+  std::complex<double> *S_VS_VS_CP = NULL, *S_VS_SV_CP = NULL;
+  std::array<std::complex<double>, nTopoVSConf> S_VS, S_VS_CP;
+
   double pdf_gen = 0.0;
 
   // Set branch addresses
@@ -68,6 +76,17 @@ void LoadToy(const std::string &filename, const std::string &treename,
   tree->SetBranchAddress("S_VV_P_CP", &S_VV_P_CP);
   tree->SetBranchAddress("S_VV_D_CP", &S_VV_D_CP);
 
+  tree->SetBranchAddress("B_VS_VS", &B_VS_VS);
+  tree->SetBranchAddress("B_VS_SV", &B_VS_SV);
+  tree->SetBranchAddress("B_VS_VS_CP", &B_VS_VS_CP);
+  tree->SetBranchAddress("B_VS_SV_CP", &B_VS_SV_CP);
+
+  tree->SetBranchAddress("S_VS_VS", &S_VS_VS);
+  tree->SetBranchAddress("S_VS_SV", &S_VS_SV);
+  tree->SetBranchAddress("S_VS_VS_CP", &S_VS_VS_CP);
+  tree->SetBranchAddress("S_VS_SV_CP", &S_VS_SV_CP);
+
+
   tree->SetBranchAddress("pdf_gen", &pdf_gen);
 
   for (std::size_t i = 0; i < n; ++i) {
@@ -75,9 +94,10 @@ void LoadToy(const std::string &filename, const std::string &treename,
 
     Event event(*p4Kp, *p4pim, *p4Km, *p4pip, time, qtag, has_cache);
 
-    const bool inRange = Selection_masses(event.GetMassKpPim(), event.GetMassKmPip());
+    const bool massesInRange = Selection_masses(event.GetMassKpPim(),
+                                                event.GetMassKmPip());
 
-    if (not inRange)
+    if (not massesInRange)
       continue;
     event.SetGenPDF(pdf_gen);
 
@@ -91,6 +111,14 @@ void LoadToy(const std::string &filename, const std::string &treename,
       S_VV = {*S_VV_S, *S_VV_P, *S_VV_D};
       S_VV_CP = {*S_VV_S_CP, *S_VV_P_CP, *S_VV_D_CP};
       event.GetToSetVV().SetAmpsSpin(S_VV, S_VV_CP);
+
+      B_VS = {B_VS_VS, B_VS_SV};
+      B_VS_CP = {B_VS_VS_CP, B_VS_SV_CP};
+      event.GetToSetVS().SetAmpsBarrier(B_VS, B_VS_CP);
+
+      S_VS = {*S_VS_VS, *S_VS_SV};
+      S_VS_CP = {*S_VS_VS_CP, *S_VS_SV_CP};
+      event.GetToSetVS().SetAmpsSpin(S_VS, S_VS_CP);
     }
 
     data.push_back(event);
@@ -117,6 +145,12 @@ void SaveData(const std::string &filename, const std::vector<Event> &data) {
 
   std::complex<double> S_VV_S, S_VV_P, S_VV_D;
   std::complex<double> S_VV_S_CP, S_VV_P_CP, S_VV_D_CP;
+
+  double B_VS_VS, B_VS_SV;
+  double B_VS_VS_CP, B_VS_SV_CP;
+
+  std::complex<double> S_VS_VS, S_VS_SV;
+  std::complex<double> S_VS_VS_CP, S_VS_SV_CP;
 
   double cos1, cos2, phi, m1, m2;
 
@@ -149,6 +183,16 @@ void SaveData(const std::string &filename, const std::vector<Event> &data) {
   tree->Branch("S_VV_P_CP", &S_VV_P_CP);
   tree->Branch("S_VV_D_CP", &S_VV_D_CP);
 
+  tree->Branch("B_VS_VS", &B_VS_VS);
+  tree->Branch("B_VS_SV", &B_VS_SV);
+  tree->Branch("B_VS_VS_CP", &B_VS_VS_CP);
+  tree->Branch("B_VS_SV_CP", &B_VS_SV_CP);
+
+  tree->Branch("S_VS_VS", &S_VS_VS);
+  tree->Branch("S_VS_SV", &S_VS_SV);
+  tree->Branch("S_VS_VS_CP", &S_VS_VS_CP);
+  tree->Branch("S_VS_SV_CP", &S_VS_SV_CP);
+
   tree->Branch("CosTheta1", &cos1);
   tree->Branch("CosTheta2", &cos2);
   tree->Branch("Phi", &phi);
@@ -157,7 +201,7 @@ void SaveData(const std::string &filename, const std::vector<Event> &data) {
 
   tree->Branch("pdf_gen", &pdf_gen);
 
-  for (const auto & event : data) {
+  for (const auto &event: data) {
     time = event.GetTime();
     qtag = event.GetQtag();
     p4Kp = event.Getp4(CPConf::A)[0].Getp4ROOT();
@@ -178,6 +222,16 @@ void SaveData(const std::string &filename, const std::vector<Event> &data) {
     S_VV_S_CP = event.GetVV().GetAmpSpin(SpinVV::S, CPConf::Abar);
     S_VV_P_CP = event.GetVV().GetAmpSpin(SpinVV::P, CPConf::Abar);
     S_VV_D_CP = event.GetVV().GetAmpSpin(SpinVV::D, CPConf::Abar);
+
+    B_VS_VS = event.GetVS().GetAmpBarrier(TopoVSConf::VS, CPConf::A);
+    B_VS_SV = event.GetVS().GetAmpBarrier(TopoVSConf::SV, CPConf::A);
+    B_VS_VS_CP = event.GetVS().GetAmpBarrier(TopoVSConf::VS, CPConf::Abar);
+    B_VS_SV_CP = event.GetVS().GetAmpBarrier(TopoVSConf::SV, CPConf::Abar);
+
+    S_VS_VS = event.GetVS().GetAmpSpin(TopoVSConf::VS, CPConf::A);
+    S_VS_SV = event.GetVS().GetAmpSpin(TopoVSConf::SV, CPConf::A);
+    S_VS_VS_CP = event.GetVS().GetAmpSpin(TopoVSConf::VS, CPConf::Abar);
+    S_VS_SV_CP = event.GetVS().GetAmpSpin(TopoVSConf::SV, CPConf::Abar);
 
     m1 = (p4Kp + p4pim).M();
     m2 = (p4Km + p4pip).M();
