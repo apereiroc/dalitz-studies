@@ -22,8 +22,8 @@ protected:
 public:
   AmpBase(std::string name, const Par &idx_abs, const Par &idx_arg,
           const Par &idx_absLambda, const Par &idx_argLambda)
-      : name(std::move(name)), idx_abs(idx_abs), idx_arg(idx_arg),
-        idx_absLambda(idx_absLambda), idx_argLambda(idx_argLambda) {}
+          : name(std::move(name)), idx_abs(idx_abs), idx_arg(idx_arg),
+            idx_absLambda(idx_absLambda), idx_argLambda(idx_argLambda) {}
 
   // Pure virtual method to obtain the dynamical component
   virtual inline std::complex<double> GetAmp(const Event &event,
