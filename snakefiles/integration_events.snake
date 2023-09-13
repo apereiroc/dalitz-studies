@@ -5,6 +5,7 @@ import os
 
 available_cpu = os.cpu_count() - 1
 events_per_job_for_norm_Bs = get_events_per_job(nint_Bs, available_cpu)
+events_per_job_for_norm_Du = get_events_per_job(nint_Bs, available_cpu)
 
 '''
   Bs0
@@ -26,5 +27,28 @@ rule generate_1M_integration_events_all_jobs_for_Bs:
         files = lambda w: expand(phsp_mc_Bs_path+"norm-events-Bs-{ipiece}.root", ipiece=range(available_cpu))
     output:
         phsp_mc_Bs_path+"normalisation_set.root",
+    run:
+        shell(f"hadd -f {output} {input.files}")
+
+'''
+  D0
+'''
+rule generate_integration_events_single_job_for_Du:
+    input:
+        binary=code_path + "src/dtokpikpi_CovGen_norm",
+    output:
+        temp(phsp_mc_Du_path + "norm-events-Du-{ipiece}.root")
+    log:
+        "log/integration-Du-{ipiece}.log"
+    run:
+        seed = get_seed(f"{output}")
+        nevents = events_per_job_for_norm_Du[int(wildcards.ipiece)]
+        shell(f"({input.binary} -s {seed} -n {nevents} -o {output}) > {log}")
+
+rule generate_1M_integration_events_all_jobs_for_Du:
+    input:
+        files = lambda w: expand(phsp_mc_Du_path+"norm-events-Du-{ipiece}.root", ipiece=range(available_cpu))
+    output:
+        phsp_mc_Du_path+"normalisation_set.root",
     run:
         shell(f"hadd -f {output} {input.files}")

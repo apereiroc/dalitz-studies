@@ -4,6 +4,9 @@
 
 import os
 
+'''
+  Bs0
+'''
 rule scan_toy_Bs:
     input:
         binary = code_path + "src/btokpikpi_CovScan",
@@ -22,5 +25,30 @@ rule plot_scan_toy_Bs:
         file = 'output/Bs/scan/plot-{parameter}.root'
     output:
         fig = 'output/Bs/scan/plot-{parameter}.pdf'
+    run:
+        shell(f"python {input.pyscript} --input-file {input.file} --input-pars {input.pars} --param {wildcards.parameter} --output-fig {output.fig}")
+
+
+'''
+  D0
+'''
+rule scan_toy_Du:
+    input:
+        binary = code_path + "src/dtokpikpi_CovScan",
+        pars = "par/standard.json",
+        sig = data_Du_path + "signal_set.root",
+        norm = phsp_mc_Du_path + "normalisation_set.root",
+    output:
+        "output/Du/scan/plot-{parameter}.root",
+    run:
+        shell(f"{input.binary} -i {input.pars} -p {wildcards.parameter} -f {input.sig} -F {input.norm} -o {output}")
+
+rule plot_scan_toy_Du:
+    input:
+        pyscript = code_path + 'python/plot_likelihood_scan.py',
+        pars = 'par/standard.json',
+        file = 'output/Du/scan/plot-{parameter}.root'
+    output:
+        fig = 'output/Du/scan/plot-{parameter}.pdf'
     run:
         shell(f"python {input.pyscript} --input-file {input.file} --input-pars {input.pars} --param {wildcards.parameter} --output-fig {output.fig}")
