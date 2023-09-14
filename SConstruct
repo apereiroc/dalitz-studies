@@ -64,3 +64,4 @@ Export("env")
 
 # Run SConscript files
 env.SConscript('src/SConscript')
+env.SConscript('test/SConscript')
