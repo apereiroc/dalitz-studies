@@ -21,7 +21,7 @@ int main() {
   mn_param.Add("Param3", originalVal3, err);
 
   mn_param.LoadBlindingScheme(
-          "/Users/apereiro/Desktop/Proxectos/dalitz-studies/par/blinding.json");
+          "/Users/apereiro/Desktop/Proxectos/dalitz-studies/test/blinding.json");
 
 
   std::cout << "Initial parameters: " << mn_param << "\n\n";
