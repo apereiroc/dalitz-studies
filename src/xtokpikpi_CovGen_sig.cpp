@@ -11,27 +11,28 @@
 #include "Par.h"
 #include "Selection.h"
 #include "SigPDF.h"
+#include "Meson.h"
 
 namespace po = boost::program_options;
 
 int main(const int argc, const char *argv[]) {
-  std::string inPars, outFile;
+  std::string inMeson, inPars, outFile;
   unsigned int seed, nevents;
   double hmax;
 
   po::options_description desc{"Options"};
 
-  desc.add_options()("help,h", "Display usage")(
-          "input-pars,i", po::value<std::string>(&inPars),
-          "Input parameter file")(
-          "output-file,o", po::value<std::string>(&outFile), "Output file")(
-          "seed,s", po::value<unsigned int>(&seed)->default_value(123),
-          "Seed for RNG")("nevents,n",
-                          po::value<unsigned int>(&nevents)->default_value(
-                                  300),
-                          "Number of events to be generated")(
-          "hmax,h", po::value<double>(&hmax),
-          "Maximum height of the distribution");
+  desc.add_options()("help,h", "Display usage")
+          ("meson,m", po::value<std::string>(&inMeson), "Input meson (Bs/Du)")
+          ("input-pars,i", po::value<std::string>(&inPars),
+           "Input parameter file")
+          ("output-file,o", po::value<std::string>(&outFile), "Output file")
+          ("seed,s", po::value<unsigned int>(&seed)->default_value(123),
+           "Seed for RNG")
+          ("nevents,n", po::value<unsigned int>(&nevents)->default_value(300),
+           "Number of events to be generated")
+          ("hmax,h", po::value<double>(&hmax),
+           "Maximum height of the distribution");
 
   po::variables_map args;
   po::store(po::parse_command_line(argc, argv, desc), args);
@@ -42,6 +43,7 @@ int main(const int argc, const char *argv[]) {
     std::exit(0);
   }
 
+  Meson mother(parseMeson(inMeson));
 
   // Load fit parameters
   FitParameters mn_param;
@@ -88,11 +90,12 @@ int main(const int argc, const char *argv[]) {
                           ampVS_p, ampVS_m, ampSS);
 
   // Load PDFs
-  SigPDF pdf_sig(amps, tau_Bs, DG_Bs, Dm_Bs);
+  SigPDF pdf_sig(amps, mother.getTauIdx(), mother.getDGIdx(),
+                 mother.getDmIdx());
   pdf_sig.NormTime(par);
 
   // Prepare phase space generator
-  TLorentzVector P(0.0, 0.0, 0.0, mass_Bs);
+  TLorentzVector P(0.0, 0.0, 0.0, mother.getMass());
 
   const std::vector<double> masses = {mass_Kp, mass_pip, mass_Kp, mass_pip};
 
@@ -120,8 +123,8 @@ int main(const int argc, const char *argv[]) {
       if (not massesInRange)
         continue;
 
-      const double tauLong = 1.0 / ((1.0 / mn_param.Value(Par::tau_Bs)) -
-                                    fabs(mn_param.Value(Par::DG_Bs) /
+      const double tauLong = 1.0 / ((1.0 / mn_param.Value(mother.getTauIdx())) -
+                                    fabs(mn_param.Value(mother.getDGIdx()) /
                                          2.0));
       const double time_gen = -tauLong * std::log(gRandom->Uniform());
 
@@ -139,7 +142,7 @@ int main(const int argc, const char *argv[]) {
       pdf_sig.ResizeEvents(event);
 
       // Insert amplitudes into event
-      pdf_sig.Amps(event, par);
+      pdf_sig.updateAmpsInEvent(event, par);
 
       // Get PDF
       const double pdf_gen = pdf_sig.GetPDF(event, time_gen, qtag_gen,

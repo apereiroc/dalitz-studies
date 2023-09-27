@@ -1,27 +1,26 @@
 #include <boost/program_options.hpp>
-#include <filesystem>
 #include <iostream>
 
 #include "Data.h"
-#include "FitParameters.h"
 #include "GenUtil.h"
-#include "Par.h"
 #include "Selection.h"
+#include "Meson.h"
 
 namespace po = boost::program_options;
 
 int main(const int argc, const char *argv[]) {
-  std::string outFile;
+  std::string inMeson, outFile;
   unsigned int seed, nevents;
 
   po::options_description desc{"Options"};
 
-  desc.add_options()("help,h", "Display usage")(
-          "output-file,o", po::value<std::string>(&outFile), "Output file")(
-          "seed,s", po::value<unsigned int>(&seed)->default_value(123),
-          "Seed for RNG")("nevents,n",
-                          po::value<unsigned int>(&nevents)->default_value(300),
-                          "Number of events to be generated");
+  desc.add_options()("help,h", "Display usage")
+          ("meson,m", po::value<std::string>(&inMeson), "Input meson (Bs/Du)")
+          ("output-file,o", po::value<std::string>(&outFile), "Output file")
+          ("seed,s", po::value<unsigned int>(&seed)->default_value(123),
+           "Seed for RNG")
+          ("nevents,n", po::value<unsigned int>(&nevents)->default_value(300),
+           "Number of events to be generated");
 
   po::variables_map args;
   po::store(po::parse_command_line(argc, argv, desc), args);
@@ -32,7 +31,9 @@ int main(const int argc, const char *argv[]) {
     std::exit(0);
   }
 
-  TLorentzVector P(0.0, 0.0, 0.0, mass_Du);
+  Meson mother(parseMeson(inMeson));
+
+  TLorentzVector P(0.0, 0.0, 0.0, mother.getMass());
 
   const std::vector<double> masses = {mass_Kp, mass_pip, mass_Kp, mass_pip};
 
@@ -62,8 +63,8 @@ int main(const int argc, const char *argv[]) {
       const int qtag_gen = (gRandom->Uniform() < 0.5) ? -1 : +1;
 
       Event event(*generator.GetDecay(0), *generator.GetDecay(1),
-                  *generator.GetDecay(2), *generator.GetDecay(3),
-                  time_gen, qtag_gen);
+                  *generator.GetDecay(2), *generator.GetDecay(3), time_gen,
+                  qtag_gen);
 
       double pdf_gen = 1.0;
 
@@ -78,7 +79,7 @@ int main(const int argc, const char *argv[]) {
   const std::string fname =
           !outFile.empty()
           ? outFile
-          : "dat/dtokppimkmpip-norm-" + std::to_string(seed) + ".root";
+          : "dat/bdstokppimkmpip-norm-" + std::to_string(seed) + ".root";
 
   SaveData(fname, gen);
 

@@ -18,8 +18,7 @@
 #include "Data.h"
 #include "Event.h"
 #include "FitParameters.h"
-#include "MinuitFcn.h"
-#include "Par.h"
+#include "Meson.h"
 #include "SigPDF.h"
 
 using namespace ROOT::Minuit2;
@@ -27,17 +26,18 @@ namespace po = boost::program_options;
 using json = nlohmann::ordered_json;
 
 int main(const int argc, const char *argv[]) {
-  std::string inSig, inNorm, inPars, outFile;
+  std::string inMeson, inSig, inNorm, inPars, outFile;
 
   po::options_description desc{"Options"};
 
-  desc.add_options()("help,h", "Display usage")(
-          "sigfile,f", po::value<std::string>(&inSig),
-          "Input signal file")("normfile,F", po::value<std::string>(&inNorm),
-                               "Input normalisation file")(
-          "input-pars,i", po::value<std::string>(&inPars),
-          "Input parameter file")(
-          "output-file,o", po::value<std::string>(&outFile), "Output file");
+  desc.add_options()("help,h", "Display usage")
+          ("meson,m", po::value<std::string>(&inMeson), "Input meson (Bs/Du)")
+          ("sigfile,f", po::value<std::string>(&inSig), "Input signal file")
+          ("normfile,F", po::value<std::string>(&inNorm),
+           "Input normalisation file")
+          ("input-pars,i", po::value<std::string>(&inPars),
+           "Input parameter file")
+          ("output-file,o", po::value<std::string>(&outFile), "Output file");
 
   po::variables_map args;
   po::store(po::parse_command_line(argc, argv, desc), args);
@@ -47,6 +47,8 @@ int main(const int argc, const char *argv[]) {
     std::cout << desc << std::endl;
     std::exit(0);
   }
+
+  Meson mother(parseMeson(inMeson));
 
   std::vector<Event> data, norm;
 
@@ -100,7 +102,8 @@ int main(const int argc, const char *argv[]) {
                           ampVS_p, ampVS_m, ampSS);
 
   // Load PDFs
-  SigPDF pdf_sig(amps, tau_Bs, DG_Bs, Dm_Bs);
+  SigPDF pdf_sig(amps, mother.getTauIdx(), mother.getDGIdx(),
+                 mother.getDmIdx());
   pdf_sig.NormTime(par);
   pdf_sig.ResizeEvents(data, norm);
   pdf_sig.Norm(norm, par);

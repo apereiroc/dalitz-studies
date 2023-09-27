@@ -8,7 +8,7 @@
 
 rule fit_toy_Bs:
     input:
-        binary=code_path + "src/btokpikpi_CovFit",
+        binary=code_path + "src/xtokpikpi_CovFit",
         pars="par/standard.json",
         sig=data_Bs_path + "signal_set.root",
         norm=phsp_mc_Bs_path + "normalisation_set.root",
@@ -17,7 +17,7 @@ rule fit_toy_Bs:
     threads:
         workflow.cores
     run:
-        shell(f"{input.binary} -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
+        shell(f"{input.binary} --meson Bs -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
 
 '''
   D0
@@ -25,7 +25,7 @@ rule fit_toy_Bs:
 
 rule fit_toy_Du:
     input:
-        binary=code_path + "src/dtokpikpi_CovFit",
+        binary=code_path + "src/xtokpikpi_CovFit",
         pars="par/standard.json",
         sig=data_Du_path + "signal_set.root",
         norm=phsp_mc_Du_path + "normalisation_set.root",
@@ -34,4 +34,4 @@ rule fit_toy_Du:
     threads:
         workflow.cores
     run:
-        shell(f"{input.binary} -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
+        shell(f"{input.binary} --meson Du -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
