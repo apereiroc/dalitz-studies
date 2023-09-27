@@ -3,7 +3,6 @@
 //
 
 #include <iostream>
-#include "Blinder.h"
 #include "FitParameters.h"
 
 int main() {
@@ -20,7 +19,7 @@ int main() {
   mn_param.Add("Param2", originalVal2, err);
   mn_param.Add("Param3", originalVal3, err);
 
-  mn_param.LoadBlindingScheme(
+  mn_param.LoadBlindingString(
           "/Users/apereiro/Desktop/Proxectos/dalitz-studies/test/blinding.json");
 
 
