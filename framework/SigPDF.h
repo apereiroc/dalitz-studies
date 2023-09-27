@@ -98,7 +98,7 @@ public:
     return amp;
   }
 
-  void Amps(Event &event, const std::vector<double> &par) const {
+  void updateAmpsInEvent(Event &event, const std::vector<double> &par) const {
     const auto lambda_amps = [&_event = event,
             &_par = std::as_const(par)](const auto &...Amps) {
       Eigen::Index i = 0;

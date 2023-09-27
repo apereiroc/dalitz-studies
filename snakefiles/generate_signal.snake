@@ -13,17 +13,17 @@ events_per_job_for_sig_Du = get_events_per_job(nsig_Du,available_cpu)
 
 rule get_hmax_for_generating_Bs_toy:
     input:
-        binary=code_path + "src/get_hmax_Bs",
+        binary=code_path + "src/get_hmax",
         pars="par/standard.json",
     output:
         data_Bs_path + "temp/hmax.dat",
     run:
-        shell("{input.binary} -i {input.pars} -s 666 -n 10000 -o {output}")
+        shell("{input.binary} --meson Bs -i {input.pars} -s 666 -n 10000 -o {output}")
 
 
 rule i_job_for_generating_Bs_toy:
     input:
-        binary=code_path + "src/btokpikpi_CovGen_sig",
+        binary=code_path + "src/xtokpikpi_CovGen_sig",
         pars="par/standard.json",
         file_hmax=data_Bs_path + "temp/hmax.dat",
     output:
@@ -35,7 +35,7 @@ rule i_job_for_generating_Bs_toy:
 
         nevents = events_per_job_for_sig_Bs[int(wildcards.ipiece)]
 
-        shell(f"{input.binary} -i {input.pars} -n {nevents} -s {seed} --hmax {hmax} -o {output}")
+        shell(f"{input.binary} --meson Bs -i {input.pars} -n {nevents} -s {seed} --hmax {hmax} -o {output}")
 
 
 rule all_jobs_for_generating_Bs_toy:
@@ -55,17 +55,17 @@ rule all_jobs_for_generating_Bs_toy:
 
 rule get_hmax_for_generating_Du_toy:
     input:
-        binary=code_path + "src/get_hmax_Du",
+        binary=code_path + "src/get_hmax",
         pars="par/standard.json",
     output:
         data_Du_path + "temp/hmax.dat",
     run:
-        shell("{input.binary} -i {input.pars} -s 666 -n 10000 -o {output}")
+        shell("{input.binary} --meson Du -i {input.pars} -s 666 -n 10000 -o {output}")
 
 
 rule i_job_for_generating_Du_toy:
     input:
-        binary=code_path + "src/dtokpikpi_CovGen_sig",
+        binary=code_path + "src/xtokpikpi_CovGen_sig",
         pars="par/standard.json",
         file_hmax=data_Du_path + "temp/hmax.dat",
     output:
@@ -77,7 +77,7 @@ rule i_job_for_generating_Du_toy:
 
         nevents = events_per_job_for_sig_Du[int(wildcards.ipiece)]
 
-        shell(f"{input.binary} -i {input.pars} -n {nevents} -s {seed} --hmax {hmax} -o {output}")
+        shell(f"{input.binary} --meson Du -i {input.pars} -n {nevents} -s {seed} --hmax {hmax} -o {output}")
 
 
 rule all_jobs_for_generating_Du_toy:

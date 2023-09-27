@@ -7,7 +7,8 @@
 #include <iomanip>
 #include <iostream>
 
-template <typename SIGPDF> class MinuitFcn : public ROOT::Minuit2::FCNBase {
+template<typename SIGPDF>
+class MinuitFcn : public ROOT::Minuit2::FCNBase {
 private:
   std::vector<Event> &data, &norm;
 
@@ -19,7 +20,7 @@ private:
 public:
   MinuitFcn(std::vector<Event> &data, std::vector<Event> &norm,
             const SIGPDF &pdf_sig)
-      : data(data), norm(norm), pdf_sig(pdf_sig) {
+          : data(data), norm(norm), pdf_sig(pdf_sig) {
     std::cout << std::setprecision(std::numeric_limits<double>::digits10);
   }
 
@@ -41,7 +42,7 @@ public:
       Event &event = data[i];
 
       // Update amplitudes if necessary
-      pdf_sig.Amps(event, par);
+      pdf_sig.updateAmpsInEvent(event, par);
 
       const double pdf = pdf_sig.GetTimeIntegratedPDF(event, par) / norm_sig;
 

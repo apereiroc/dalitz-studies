@@ -1,5 +1,4 @@
 #include <chrono>
-#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -11,7 +10,6 @@
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/MnMigrad.h"
 #include "Minuit2/MnPrint.h"
-#include "Minuit2/MnScan.h"
 #include "TRandom3.h"
 
 #include "AmpVV.h"
@@ -20,29 +18,27 @@
 #include "Data.h"
 #include "Event.h"
 #include "FitParameters.h"
-#include "FitUtil.h"
 #include "MinuitFcn.h"
-#include "Par.h"
+#include "Meson.h"
 #include "SigPDF.h"
 
 using namespace ROOT::Minuit2;
 namespace po = boost::program_options;
 
 int main(const int argc, const char *argv[]) {
-  std::string inSig, inNorm, inParam, inPars, outPlot;
+  std::string inMeson, inSig, inNorm, inPars, outPars;
 
   po::options_description desc{"Options"};
 
-  desc.add_options()("help,h", "Display usage")(
-          "sigfile,f", po::value<std::string>(&inSig),
-          "Input signal file")("normfile,F", po::value<std::string>(&inNorm),
-                               "Input normalisation file")(
-          "input-pars,i", po::value<std::string>(&inPars),
-          "Input parameter file")(
-          "parameter,p", po::value<std::string>(&inParam),
-          "Parameter to be scanned")("output-pars,o",
-                                     po::value<std::string>(&outPlot),
-                                     "Output parameter file");
+  desc.add_options()("help,h", "Display usage")
+          ("meson,m", po::value<std::string>(&inMeson), "Input meson (Bs/Du)")
+          ("sigfile,f", po::value<std::string>(&inSig), "Input signal file")
+          ("normfile,F", po::value<std::string>(&inNorm),
+           "Input normalisation file")
+          ("input-pars,i", po::value<std::string>(&inPars),
+           "Input parameter file")
+          ("output-pars,o", po::value<std::string>(&outPars),
+           "Output parameter file");
 
   po::variables_map args;
   po::store(po::parse_command_line(argc, argv, desc), args);
@@ -52,6 +48,8 @@ int main(const int argc, const char *argv[]) {
     std::cout << desc << std::endl;
     std::exit(0);
   }
+
+  Meson mother(parseMeson(inMeson));
 
   std::vector<Event> data, norm;
 
@@ -64,6 +62,13 @@ int main(const int argc, const char *argv[]) {
   // Load fit parameters
   FitParameters mn_param;
   mn_param.LoadParFromJSON(inPars);
+
+  // Avoid vanishing gradients
+  for (unsigned int idx = abs_VV_S; idx <= arg_SS; idx++) {
+    if (!mn_param.Parameter(idx).IsFixed()) {
+      mn_param.SetValue(idx, gRandom->Gaus(mn_param.Value(idx), 0.1));
+    }
+  }
 
   const std::vector<double> &par = mn_param.Params();
 
@@ -108,67 +113,20 @@ int main(const int argc, const char *argv[]) {
                           ampVS_p, ampVS_m, ampSS);
 
   // Load PDFs
-  SigPDF pdf_sig(amps, tau_Du, DG_Du, Dm_Du);
+  SigPDF pdf_sig(amps, mother.getTauIdx(), mother.getDGIdx(),
+                 mother.getDmIdx());
   pdf_sig.NormTime(par);
   pdf_sig.ResizeEvents(data, norm);
 
   // Load Fcn
   MinuitFcn fcn(data, norm, pdf_sig);
 
-  // Create plot file
-  auto *file = new TFile(outPlot.c_str(), "recreate");
-  auto *tree = new TTree("plot", "");
+  MnMigrad migrad(fcn, mn_param, 2);
+  FunctionMinimum min = migrad();
+  min = migrad();
+  mn_param.SaveParToJSON(outPars, min);
 
-  double x, pdf;
-
-  tree->Branch("x", &x);
-  tree->Branch("pdf", &pdf);
-
-  unsigned int paramIdx = mn_param.Index(inParam);
-
-  const unsigned int npoints = 100;
-  const double ll = mn_param.Parameter(paramIdx).LowerLimit();
-  const double ul = mn_param.Parameter(paramIdx).UpperLimit();
-
-  std::cout << std::endl
-            << "Scanning parameter " << inParam << " from " << ll << " to "
-            << ul << std::endl
-            << std::endl;
-
-  mn_param.Fix(paramIdx);
-
-  for (unsigned int i = 0; i <= (npoints - 1); i++) {
-    x = ll + (ul - ll) * i / npoints;
-
-    mn_param.SetValue(paramIdx, x);
-
-    unsigned int iteration = 1;
-
-    std::cout << "This is point " << i + 1 << "/" << npoints << std::endl;
-
-    while (true) {
-      std::cout << "This is fit iteration " << iteration++ << std::endl;
-      RandomiseCovariantCoeffs(mn_param, i + iteration);
-
-      MnMigrad migrad(fcn, mn_param, 2);
-      FunctionMinimum min = migrad();
-      min = migrad();
-
-      if (min.IsValid()) {
-        std::cout << "Found a minimum!" << std::endl;
-
-        pdf = min.Fval();
-
-        break;
-      } else
-        std::cout << "Minimum not valid" << std::endl;
-    }
-
-    tree->Fill();
-  }
-
-  tree->Write();
-  file->Close();
+  std::cout << "Fit params: " << mn_param << std::endl;
 
   return 0;
 }

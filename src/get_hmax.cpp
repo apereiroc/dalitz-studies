@@ -1,6 +1,5 @@
 #include <boost/program_options.hpp>
 #include <filesystem>
-#include <iostream>
 
 #include "AmpVV.h"
 #include "AmpVS.h"
@@ -8,29 +7,27 @@
 #include "Data.h"
 #include "FitParameters.h"
 #include "GenUtil.h"
-#include "Par.h"
 #include "Selection.h"
 #include "SigPDF.h"
+#include "Meson.h"
 
 namespace po = boost::program_options;
 
 int main(const int argc, const char *argv[]) {
-  std::string inPars, outFile;
-  unsigned int seed, nevents;
-  double hmax;
+  std::string inMeson, inPars, outFile;
+  unsigned int seed, ntries;
 
   po::options_description desc{"Options"};
 
-  desc.add_options()("help,h", "Display usage")(
-          "input-pars,i", po::value<std::string>(&inPars),
-          "Input parameter file")(
-          "output-file,o", po::value<std::string>(&outFile), "Output file")(
-          "seed,s", po::value<unsigned int>(&seed)->default_value(123),
-          "Seed for RNG")("nevents,n",
-                          po::value<unsigned int>(&nevents)->default_value(300),
-                          "Number of events to be generated")(
-          "hmax,h", po::value<double>(&hmax),
-          "Maximum height of the distribution");
+  desc.add_options()("help,h", "Display usage")
+          ("meson,m", po::value<std::string>(&inMeson), "Input meson (Bs/Du)")
+          ("input-pars,i", po::value<std::string>(&inPars),
+           "Input parameter file")
+          ("output-file,o", po::value<std::string>(&outFile), "Output file")
+          ("seed,s", po::value<unsigned int>(&seed)->default_value(123),
+           "Seed for RNG")
+          ("ntries,n", po::value<unsigned int>(&ntries)->default_value(10000),
+           "Number of events to be generated");
 
   po::variables_map args;
   po::store(po::parse_command_line(argc, argv, desc), args);
@@ -40,6 +37,8 @@ int main(const int argc, const char *argv[]) {
     std::cout << desc << std::endl;
     std::exit(0);
   }
+
+  Meson mother(parseMeson(inMeson));
 
   // Load fit parameters
   FitParameters mn_param;
@@ -86,11 +85,14 @@ int main(const int argc, const char *argv[]) {
                           ampVS_p, ampVS_m, ampSS);
 
   // Load PDFs
-  SigPDF pdf_sig(amps, tau_Du, DG_Du, Dm_Du);
+  SigPDF pdf_sig(amps, mother.getTauIdx(), mother.getDGIdx(),
+                 mother.getDmIdx());
   pdf_sig.NormTime(par);
 
+  double amp2_max = 2.0e-20;
+
   // Prepare phase space generator
-  TLorentzVector P(0.0, 0.0, 0.0, mass_Du);
+  TLorentzVector P(0.0, 0.0, 0.0, mother.getMass());
 
   const std::vector<double> masses = {mass_Kp, mass_pip, mass_Kp, mass_pip};
 
@@ -98,12 +100,8 @@ int main(const int argc, const char *argv[]) {
   gRandom->SetSeed(seed);
   generator.SetDecay(P, masses.size(), masses.data());
 
-  std::vector<Event> gen;
-  gen.reserve(nevents);
-
   // Start generation
-  for (unsigned int i = 0; i < nevents; ++i) {
-    std::cout << "Event: " << i << std::endl;
+  for (unsigned int i = 0; i < ntries; ++i) {
     while (true) {
       generate_flat_event(generator);
 
@@ -118,50 +116,44 @@ int main(const int argc, const char *argv[]) {
       if (not massesInRange)
         continue;
 
-      const double tauLong = 1.0 / ((1.0 / mn_param.Value(Par::tau_Du)) -
-                                    fabs(mn_param.Value(Par::DG_Du) / 2.0));
+      const double tauLong = 1.0 / ((1.0 / mn_param.Value(mother.getTauIdx())) -
+                                    fabs(mn_param.Value(mother.getDGIdx()) /
+                                         2.0));
       const double time_gen = -tauLong * std::log(gRandom->Uniform());
 
       const int qtag_gen = (gRandom->Uniform() < 0.5) ? -1 : +1;
 
       Event event(*generator.GetDecay(0), *generator.GetDecay(1),
                   *generator.GetDecay(2), *generator.GetDecay(3),
-                  time_gen, qtag_gen);
-
-      const double height_gen =
-              gRandom->Uniform(hmax) * std::exp(-time_gen / tauLong);
+                  time_gen,
+                  qtag_gen);
 
       // Resize amplitude container inside event
       pdf_sig.ResizeEvents(event);
 
       // Insert amplitudes into event
-      pdf_sig.Amps(event, par);
+      pdf_sig.updateAmpsInEvent(event, par);
 
-      // Get PDF
-      const double pdf_gen = pdf_sig.GetPDF(event, time_gen, qtag_gen, par);
+      const double pdf_gen = pdf_sig.GetPDF(event, time_gen, qtag_gen,
+                                            par);
 
-      if (pdf_gen > hmax) {
-        std::cout << "ERROR: Generated PDF value " << pdf_gen
-                  << ", larger than maximum " << hmax << std::endl;
-        std::exit(1);
+      if (pdf_gen > amp2_max) {
+        amp2_max = pdf_gen;
       }
 
-      if (height_gen < pdf_gen)
-        event.SetGenPDF(pdf_gen);
-      else
-        continue;
-
-      gen.push_back(event);
       break;
     }
   }
 
-  const std::string fname =
-          !outFile.empty()
-          ? outFile
-          : "dat/dtokppimkmpip-norm-" + std::to_string(seed) + ".root";
+  // To be safe
+  amp2_max *= 6.0;
 
-  SaveData(fname, gen);
+  std::ofstream file;
+
+  file.open(outFile);
+  file << amp2_max << std::endl;
+
+  file.close();
 
   return 0;
 }
