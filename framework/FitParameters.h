@@ -98,7 +98,7 @@ public:
     output << std::setw(4) << parameters << std::endl;
   }
 
-  void LoadBlindingScheme(const std::string &file) {
+  void LoadBlindingString(const std::string &file) {
     std::ifstream f(file);
 
     json json_file = json::parse(f);
@@ -121,6 +121,20 @@ public:
 
       blindingOffsets.push_back({idx, offset});
     }
+  }
+
+  void AddBlindingString(const unsigned int &idx,
+                         const std::string &blindingString) {
+    if (idx > this->Params().size())
+      std::cerr << "Parameter not found\n";
+    const double offset = Blinder::getOffset(blindingString);
+
+    blindingOffsets.push_back({idx, offset});
+  }
+
+  void AddBlindingString(const std::string &paramName,
+                         const std::string &blindingString) {
+    AddBlindingString(this->Index(paramName), blindingString);
   }
 
   void SaveParToJSON(const std::string &file,
