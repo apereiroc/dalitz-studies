@@ -8,14 +8,14 @@
 
 rule plot_toy_Bs_from_json_to_root:
     input:
-        binary=code_path + "src/btokpikpi_CovPlot",
+        binary=code_path + "src/xtokpikpi_CovPlot",
         pars="output/Bs/pars.json",
         sig=data_Bs_path + "signal_set.root",
         norm=phsp_mc_Bs_path + "normalisation_set.root",
     output:
         "output/Bs/plot.root"
     run:
-        shell(f"{input.binary} -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
+        shell(f"{input.binary} --meson Bs -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
 
 rule plot_toy_Bs_from_root_to_pdf:
     input:
@@ -27,20 +27,41 @@ rule plot_toy_Bs_from_root_to_pdf:
         shell(f"python {input.pyscript} --input-file={input.file} --output-fig={output} --bins=30")
 
 
+rule plot_dynamics_Bs_from_json_to_root:
+    input:
+        binary=code_path + "src/xtokpikpi_PlotDynamics",
+        pars="par/standard.json",
+        norm=phsp_mc_Bs_path + "normalisation_set.root",
+    output:
+        "output/Bs/plot_dynamics.root"
+    run:
+        shell(f"{input.binary} --meson Bs -i {input.pars}  -F {input.norm} -o {output}")
+
+
+rule plot_dynamics_Bs_from_root_to_pdf:
+    input:
+        pyscript=code_path + "python/plot_dynamics_in_5D.py",
+        file="output/Bs/plot_dynamics.root"
+    output:
+        "output/Bs/plot_dynamics.pdf"
+    run:
+        shell(f"python {input.pyscript} --input-file={input.file} --output-fig={output} --bins=50")
+
+
 '''
   D0
 '''
 
 rule plot_toy_Du_from_json_to_root:
     input:
-        binary=code_path + "src/dtokpikpi_CovPlot",
+        binary=code_path + "src/xtokpikpi_CovPlot",
         pars="output/Du/pars.json",
         sig=data_Du_path + "signal_set.root",
         norm=phsp_mc_Du_path + "normalisation_set.root",
     output:
         "output/Du/plot.root"
     run:
-        shell(f"{input.binary} -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
+        shell(f"{input.binary} --meson Du -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
 
 rule plot_toy_Du_from_root_to_pdf:
     input:
@@ -50,3 +71,23 @@ rule plot_toy_Du_from_root_to_pdf:
         "output/Du/plot.pdf"
     run:
         shell(f"python {input.pyscript} --input-file={input.file} --output-fig={output} --bins=30")
+
+rule plot_dynamics_Du_from_json_to_root:
+    input:
+        binary=code_path + "src/xtokpikpi_PlotDynamics",
+        pars="par/standard.json",
+        norm=phsp_mc_Du_path + "normalisation_set.root",
+    output:
+        "output/Du/plot_dynamics.root"
+    run:
+        shell(f"{input.binary} --meson Du -i {input.pars}  -F {input.norm} -o {output}")
+
+
+rule plot_dynamics_Du_from_root_to_pdf:
+    input:
+        pyscript=code_path + "python/plot_dynamics_in_5D.py",
+        file="output/Du/plot_dynamics.root"
+    output:
+        "output/Du/plot_dynamics.pdf"
+    run:
+        shell(f"python {input.pyscript} --input-file={input.file} --output-fig={output} --bins=50")
