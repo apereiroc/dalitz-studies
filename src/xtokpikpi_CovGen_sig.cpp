@@ -43,7 +43,7 @@ int main(const int argc, const char *argv[]) {
     std::exit(0);
   }
 
-  Meson mother(parseMeson(inMeson));
+  Meson mother(inMeson);
 
   // Load fit parameters
   FitParameters mn_param;

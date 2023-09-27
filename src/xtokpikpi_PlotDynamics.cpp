@@ -6,33 +6,26 @@
 #include "boost/program_options/parsers.hpp"
 #include <boost/program_options.hpp>
 
-#include "Minuit2/FunctionMinimum.h"
-#include "Minuit2/MnMigrad.h"
-#include "Minuit2/MnPrint.h"
-#include "Minuit2/MnScan.h"
-#include "TRandom3.h"
-
 #include "AmpVV.h"
 #include "AmpVS.h"
 #include "AmpSS.h"
 #include "Data.h"
 #include "Event.h"
 #include "FitParameters.h"
-#include "Meson.h"
 #include "SigPDF.h"
+#include "Meson.h"
 
 using namespace ROOT::Minuit2;
 namespace po = boost::program_options;
 using json = nlohmann::ordered_json;
 
 int main(const int argc, const char *argv[]) {
-  std::string inMeson, inSig, inNorm, inPars, outFile;
+  std::string inMeson, inNorm, inPars, outFile;
 
   po::options_description desc{"Options"};
 
   desc.add_options()("help,h", "Display usage")
           ("meson,m", po::value<std::string>(&inMeson), "Input meson (Bs/Du)")
-          ("sigfile,f", po::value<std::string>(&inSig), "Input signal file")
           ("normfile,F", po::value<std::string>(&inNorm),
            "Input normalisation file")
           ("input-pars,i", po::value<std::string>(&inPars),
@@ -50,10 +43,7 @@ int main(const int argc, const char *argv[]) {
 
   Meson mother(inMeson);
 
-  std::vector<Event> data, norm;
-
-  std::cout << "Loading data..." << std::endl;
-  LoadToy(inSig, "fitTree", data, true);
+  std::vector<Event> norm;
 
   std::cout << "Loading integration events..." << std::endl;
   LoadToy(inNorm, "fitTree", norm, true);
@@ -88,6 +78,7 @@ int main(const int argc, const char *argv[]) {
               abs_SS, arg_SS,
               absLambda_SS, argLambda_SS);
 
+
   ampVV_S.SetPropagator(PropConf::BW);
   ampVV_P.SetPropagator(PropConf::BW);
   ampVV_D.SetPropagator(PropConf::BW);
@@ -105,64 +96,72 @@ int main(const int argc, const char *argv[]) {
   SigPDF pdf_sig(amps, mother.getTauIdx(), mother.getDGIdx(),
                  mother.getDmIdx());
   pdf_sig.NormTime(par);
-  pdf_sig.ResizeEvents(data, norm);
+  pdf_sig.ResizeEvents(norm);
   pdf_sig.Norm(norm, par);
-  std::cout << "Creating plot..." << std::endl;
 
-  auto *const file = new TFile(outFile.c_str(), "recreate");
-  auto *const treeData = new TTree("data", "");
-
-  double cos1, cos2, phi, m1, m2, w, pdf, time;
-
-  treeData->Branch("cos1", &cos1);
-  treeData->Branch("cos2", &cos2);
-  treeData->Branch("phi", &phi);
-  treeData->Branch("m1", &m1);
-  treeData->Branch("m2", &m2);
-  treeData->Branch("time", &time);
-  treeData->Branch("weight", &w);
-
-  for (const auto &event: data) {
-    w = 1.0;
-
-    cos1 = event.GetCosTheta1();
-    cos2 = event.GetCosTheta2();
-    phi = event.GetChi();
-    m1 = event.GetMassKpPim();
-    m2 = event.GetMassKmPip();
-    time = event.GetTime();
-
-    treeData->Fill();
+  std::cout << "Inserting amps in the events...\n";
+#pragma omp parallel for
+  for (auto &event: norm) {
+    pdf_sig.updateAmpsInEvent(event, par);
   }
 
-  treeData->Write();
+  std::cout << "Creating plot...\n";
 
-  auto *const treeFit = new TTree("fit", "");
+  TFile *const file = new TFile(outFile.c_str(), "recreate");
 
-  treeFit->Branch("cos1", &cos1);
-  treeFit->Branch("cos2", &cos2);
-  treeFit->Branch("phi", &phi);
-  treeFit->Branch("m1", &m1);
-  treeFit->Branch("m2", &m2);
-  treeFit->Branch("time", &time);
-  treeFit->Branch("pdf", &pdf);
+  auto *const treeVariables = new TTree("variables", "");
 
-  const double norm_pdf = pdf_sig.GetTimeIntegratedNorm(par);
+  double cos1, cos2, phi, mass1, mass2;
+
+  treeVariables->Branch("cos1", &cos1);
+  treeVariables->Branch("cos2", &cos2);
+  treeVariables->Branch("phi", &phi);
+  treeVariables->Branch("mass1", &mass1);
+  treeVariables->Branch("mass2", &mass2);
+
+  auto *const treeVV = new TTree("VV", "");
+
+  double spin_S, spin_P, spin_D;
+  double bf_S, bf_P, bf_D;
+
+  treeVV->Branch("spin_S", &spin_S);
+  treeVV->Branch("spin_P", &spin_P);
+  treeVV->Branch("spin_D", &spin_D);
+
+
+  treeVV->Branch("bf_S", &bf_S);
+  treeVV->Branch("bf_P", &bf_P);
+  treeVV->Branch("bf_D", &bf_D);
+
 
   for (const auto &event: norm) {
-    pdf = pdf_sig.GetTimeIntegratedPDF(event, par) / norm_pdf;
-
+    // Fill phase spoace points
     cos1 = event.GetCosTheta1();
     cos2 = event.GetCosTheta2();
     phi = event.GetChi();
-    m1 = event.GetMassKpPim();
-    m2 = event.GetMassKmPip();
-    time = event.GetTime();
+    mass1 = event.GetMassKpPim();
+    mass2 = event.GetMassKmPip();
 
-    treeFit->Fill();
+    treeVariables->Fill();
+
+    // Fill dynamical information
+    const double detJ = get_detJ(mass1, mass2, mass_Bs);
+
+    spin_S = std::abs(event.GetVV().GetAmpSpin(SpinVV::S, CPConf::A));
+    spin_P = std::abs(event.GetVV().GetAmpSpin(SpinVV::P, CPConf::A));
+    spin_D = std::abs(event.GetVV().GetAmpSpin(SpinVV::D, CPConf::A));
+
+    bf_S = std::abs(event.GetVV().GetAmpBarrier(SpinVV::S, CPConf::A));
+    bf_P = std::abs(event.GetVV().GetAmpBarrier(SpinVV::P, CPConf::A));
+    bf_D = std::abs(event.GetVV().GetAmpBarrier(SpinVV::D, CPConf::A));
+
+    treeVV->Fill();
   }
 
-  treeFit->Write();
+  treeVariables->Write();
+  treeVV->Write();
+
+
   file->Close();
 
   return 0;

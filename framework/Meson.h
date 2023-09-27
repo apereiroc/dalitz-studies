@@ -50,6 +50,9 @@ public:
     }
   }
 
+  Meson(const std::string &meson) :
+          Meson(parseMeson(meson)) {}
+
   inline Par getTauIdx() const { return idx_tau; }
 
   inline Par getDGIdx() const { return idx_DG; }
