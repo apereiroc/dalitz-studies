@@ -31,7 +31,7 @@ int main(const int argc, const char *argv[]) {
     std::exit(0);
   }
 
-  Meson mother(parseMeson(inMeson));
+  Meson mother(inMeson);
 
   TLorentzVector P(0.0, 0.0, 0.0, mother.getMass());
 
