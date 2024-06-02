@@ -4,88 +4,47 @@
 import os
 
 available_cpu = os.cpu_count() - 1
-events_per_job_for_sig_Bs = get_events_per_job(nsig_Bs,available_cpu)
-events_per_job_for_sig_Du = get_events_per_job(nsig_Du,available_cpu)
 
-'''
-  Bs0
-'''
 
-rule get_hmax_for_generating_Bs_toy:
+rule get_hmax_for_generating_toy:
     input:
-        binary=code_path + "src/get_hmax",
-        pars="par/standard.json",
+        binary = bin_path + "get_hmax",
+        pars = "par/standard.json",
     output:
-        data_Bs_path + "temp/hmax.dat",
+        data_path + "{meson}/temp/hmax.dat",
     run:
-        shell("{input.binary} --meson Bs -i {input.pars} -s 666 -n 10000 -o {output}")
+        shell("{input.binary} --meson {wildcards.meson}\
+            -i {input.pars} -s 666 -n 10000 -o {output}")
 
 
-rule i_job_for_generating_Bs_toy:
+rule generate_signal_toy_single_job:
     input:
-        binary=code_path + "src/xtokpikpi_CovGen_sig",
-        pars="par/standard.json",
-        file_hmax=data_Bs_path + "temp/hmax.dat",
+        binary = bin_path + "xtokpikpi_CovGen_sig",
+        pars = "par/standard.json",
+        file_hmax = data_path + "{meson}/temp/hmax.dat",
     output:
-        data_Bs_path + "sig_Bs_{ipiece}.root",
+        data_path + "{meson}/sig_{ipiece}.root",
+    log:
+        "log/signal-{meson}-{ipiece}.log"
     run:
         seed = get_seed(f"{output}")
 
         hmax = float(open(f"{input.file_hmax}","r").read())
 
-        nevents = events_per_job_for_sig_Bs[int(wildcards.ipiece)]
+        nevents = sig_events_per_job[wildcards.meson][int(wildcards.ipiece)]
 
-        shell(f"{input.binary} --meson Bs -i {input.pars} -n {nevents} -s {seed} --hmax {hmax} -o {output}")
+        shell(f"({input.binary} --meson {wildcards.meson} \
+                -i {input.pars} -n {nevents} -s {seed}\
+                --hmax {hmax} -o {output}) > {log}")
 
 
-rule all_jobs_for_generating_Bs_toy:
+rule generate_signal_toy_all_jobs:
     input:
-        files=lambda wildcards: expand(
-            data_Bs_path + "sig_Bs_{ipiece}.root",
+        files = lambda w: expand(
+            data_path + "{meson}/sig_{ipiece}.root",
+            meson=w.meson,
             ipiece=range(available_cpu))
     output:
-        data_Bs_path + "signal_set.root",
-    run:
-        shell(f"hadd -f {output} {input.files}")
-
-
-'''
-  D0
-'''
-
-rule get_hmax_for_generating_Du_toy:
-    input:
-        binary=code_path + "src/get_hmax",
-        pars="par/standard.json",
-    output:
-        data_Du_path + "temp/hmax.dat",
-    run:
-        shell("{input.binary} --meson Du -i {input.pars} -s 666 -n 10000 -o {output}")
-
-
-rule i_job_for_generating_Du_toy:
-    input:
-        binary=code_path + "src/xtokpikpi_CovGen_sig",
-        pars="par/standard.json",
-        file_hmax=data_Du_path + "temp/hmax.dat",
-    output:
-        data_Du_path + "sig_Du_{ipiece}.root",
-    run:
-        seed = get_seed(f"{output}")
-
-        hmax = float(open(f"{input.file_hmax}","r").read())
-
-        nevents = events_per_job_for_sig_Du[int(wildcards.ipiece)]
-
-        shell(f"{input.binary} --meson Du -i {input.pars} -n {nevents} -s {seed} --hmax {hmax} -o {output}")
-
-
-rule all_jobs_for_generating_Du_toy:
-    input:
-        files=lambda wildcards: expand(
-            data_Du_path + "sig_Du_{ipiece}.root",
-            ipiece=range(available_cpu))
-    output:
-        data_Du_path + "signal_set.root",
+        data_path + "{meson}/signal_set.root",
     run:
         shell(f"hadd -f {output} {input.files}")
