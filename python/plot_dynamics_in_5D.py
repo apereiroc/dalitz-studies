@@ -5,13 +5,15 @@ import scipy.interpolate as interpol
 import matplotlib as mpl
 import argparse
 import uproot
-import plottergeist
+import plottergeist as pg
 
 p = argparse.ArgumentParser(description="pipas")
-p.add_argument('--input-file', required=True, type=str)
-p.add_argument('--output-fig', required=True, type=str)
-p.add_argument('--bins', required=True, type=int)
+p.add_argument("--input-file", required=True, type=str)
+p.add_argument("--output-fig", required=True, type=str)
+p.add_argument("--bins", required=True, type=int)
 args = vars(p.parse_args())
+
+plt.rcParams.update({"text.latex.preamble": ""})
 
 f = uproot.open(args["input_file"])
 vars_tree = f["variables"]
@@ -20,7 +22,7 @@ vars = vars_tree.arrays(library="pd").to_numpy()
 VV_tree = f["VV"]
 df_VV = VV_tree.arrays(library="pd")
 
-fig, ax, ax6 = plottergeist.make_plot(ndim=5, pull=False)
+fig, ax, axleg = pg.make_plot(ndim=5, pull=False, figsize=(10, 6))
 
 units = [
     "",
@@ -45,42 +47,78 @@ density = True
 for i in range(5):
     var = vars[:, i]
 
-    hdata = plottergeist.make_hist(var, bins=bins)
+    hdata = pg.make_hist(var, bins=bins)
 
-    ax[i].hist(var, weights=df_VV["spin_S"],
-               align="mid", linewidth=1.5, histtype="step", bins=bins,
-               density=density,
-               label="Spin L=0")
+    ax[i].hist(
+        var,
+        weights=df_VV["spin_S"],
+        align="mid",
+        linewidth=1.5,
+        histtype="step",
+        bins=bins,
+        density=density,
+        label="Spin L=0",
+    )
 
-    ax[i].hist(var, weights=df_VV["spin_P"],
-               align="mid", linewidth=1.5, histtype="step", bins=bins,
-               density=density,
-               label="Spin L=1")
+    ax[i].hist(
+        var,
+        weights=df_VV["spin_P"],
+        align="mid",
+        linewidth=1.5,
+        histtype="step",
+        bins=bins,
+        density=density,
+        label="Spin L=1",
+    )
 
-    ax[i].hist(var, weights=df_VV["spin_D"],
-               align="mid", linewidth=1.5, histtype="step", bins=bins,
-               density=density,
-               label="Spin L=2")
+    ax[i].hist(
+        var,
+        weights=df_VV["spin_D"],
+        align="mid",
+        linewidth=1.5,
+        histtype="step",
+        bins=bins,
+        density=density,
+        label="Spin L=2",
+    )
 
-    ax[i].hist(var, weights=df_VV["bf_S"],
-               align="mid", linewidth=1.5, histtype="step", bins=bins,
-               density=density,
-               label="Barrier factor L=0")
+    ax[i].hist(
+        var,
+        weights=df_VV["bf_S"],
+        align="mid",
+        linewidth=1.5,
+        histtype="step",
+        bins=bins,
+        density=density,
+        label="Barrier factor L=0",
+    )
 
-    ax[i].hist(var, weights=df_VV["bf_P"],
-               align="mid", linewidth=1.5, histtype="step", bins=bins,
-               density=density,
-               label="Barrier factor L=1")
+    ax[i].hist(
+        var,
+        weights=df_VV["bf_P"],
+        align="mid",
+        linewidth=1.5,
+        histtype="step",
+        bins=bins,
+        density=density,
+        label="Barrier factor L=1",
+    )
 
-    ax[i].hist(var, weights=df_VV["bf_D"],
-               align="mid", linewidth=1.5, histtype="step", bins=bins,
-               density=density,
-               label="Barrier factor L=2")
+    ax[i].hist(
+        var,
+        weights=df_VV["bf_D"],
+        align="mid",
+        linewidth=1.5,
+        histtype="step",
+        bins=bins,
+        density=density,
+        label="Barrier factor L=2",
+    )
 
     ax[i].set_ylim(ymin=0)
     ax[i].set_ylabel(
-        "Candidates / {:.2f} {}".format(hdata.bins[1] - hdata.bins[0],
-                                        units[i]), fontsize=14)
+        "Candidates / {:.2f} {}".format(hdata.bins[1] - hdata.bins[0], units[i]),
+    )
 
     u = ""
     if units[i] != "":
@@ -98,8 +136,8 @@ ax[4].set_ylim(ymax=ymax_mass)
 
 handles, labels = ax[0].get_legend_handles_labels()
 
-ax6.axis("off")
-ax6.legend(handles, labels, loc='center')
+axleg.axis("off")
+axleg.legend(handles, labels, loc="center")
 
 # fig.tight_layout()
 
