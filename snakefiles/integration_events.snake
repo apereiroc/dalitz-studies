@@ -1,56 +1,27 @@
 """
   Rules for generating the set of integration events
 """
-import os
 
-available_cpu = os.cpu_count() - 1
-events_per_job_for_norm_Bs = get_events_per_job(nint_Bs,available_cpu)
-events_per_job_for_norm_Du = get_events_per_job(nint_Du,available_cpu)
-
-'''
-  Bs0
-'''
-
-rule generate_integration_events_single_job_for_Bs:
+rule generate_integration_events_single_job:
     input:
-        binary=code_path + "src/xtokpikpi_CovGen_norm",
+        binary= bin_path + "xtokpikpi_CovGen_norm",
     output:
-        temp(phsp_mc_Bs_path + "norm-events-Bs-{ipiece}.root")
+        temp(norm_path + "{meson}/norm-events-{ipiece}.root")
     log:
-        "log/integration-Bs-{ipiece}.log"
+        "log/integration-{meson}-{ipiece}.log"
     run:
         seed = get_seed(f"{output}")
-        nevents = events_per_job_for_norm_Bs[int(wildcards.ipiece)]
-        shell(f"({input.binary} --meson Bs -s {seed} -n {nevents} -o {output}) > {log}")
+        nevents = norm_events_per_job[wildcards.meson][int(wildcards.ipiece)]
 
-rule generate_1M_integration_events_all_jobs_for_Bs:
+        shell(f"({input.binary} --meson {wildcards.meson} -s {seed}\
+               -n {nevents} -o {output}) > {log}")
+
+rule generate_1M_integration_events_all_jobs:
     input:
-        files=lambda w: expand(phsp_mc_Bs_path + "norm-events-Bs-{ipiece}.root",ipiece=range(available_cpu))
+        files=lambda w: expand(norm_path + "{meson}/norm-events-{ipiece}.root",
+                               meson=w.meson,
+                               ipiece=range(available_cpu))
     output:
-        phsp_mc_Bs_path + "normalisation_set.root",
-    run:
-        shell(f"hadd -f {output} {input.files}")
-
-'''
-  D0
-'''
-
-rule generate_integration_events_single_job_for_Du:
-    input:
-        binary=code_path + "src/xtokpikpi_CovGen_norm",
-    output:
-        temp(phsp_mc_Du_path + "norm-events-Du-{ipiece}.root")
-    log:
-        "log/integration-Du-{ipiece}.log"
-    run:
-        seed = get_seed(f"{output}")
-        nevents = events_per_job_for_norm_Du[int(wildcards.ipiece)]
-        shell(f"({input.binary} --meson Du -s {seed} -n {nevents} -o {output}) > {log}")
-
-rule generate_1M_integration_events_all_jobs_for_Du:
-    input:
-        files=lambda w: expand(phsp_mc_Du_path + "norm-events-Du-{ipiece}.root",ipiece=range(available_cpu))
-    output:
-        phsp_mc_Du_path + "normalisation_set.root",
+        norm_path + "{meson}/normalisation_set.root",
     run:
         shell(f"hadd -f {output} {input.files}")

@@ -2,36 +2,17 @@
   Rules for fitting the signal MC
 """
 
-'''
-  Bs0
-'''
-
-rule fit_toy_Bs:
+rule fit_signal_toy:
     input:
-        binary=code_path + "src/xtokpikpi_CovFit",
-        pars="par/standard.json",
-        sig=data_Bs_path + "signal_set.root",
-        norm=phsp_mc_Bs_path + "normalisation_set.root",
+        binary = bin_path + "xtokpikpi_CovFit",
+        pars = "par/standard.json",
+        sig = data_path + "{meson}/signal_set.root",
+        norm = norm_path + "{meson}/normalisation_set.root",
     output:
-        "output/Bs/pars.json"
+        "output/{meson}/pars.json"
     threads:
         workflow.cores
     run:
-        shell(f"{input.binary} --meson Bs -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
-
-'''
-  D0
-'''
-
-rule fit_toy_Du:
-    input:
-        binary=code_path + "src/xtokpikpi_CovFit",
-        pars="par/standard.json",
-        sig=data_Du_path + "signal_set.root",
-        norm=phsp_mc_Du_path + "normalisation_set.root",
-    output:
-        "output/Du/pars.json"
-    threads:
-        workflow.cores
-    run:
-        shell(f"{input.binary} --meson Du -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
+        shell(f"{input.binary} --meson {wildcards.meson}\
+               -i {input.pars} -f {input.sig}\
+               -F {input.norm} -o {output}")

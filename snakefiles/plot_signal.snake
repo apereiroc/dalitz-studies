@@ -2,92 +2,50 @@
   Rules for plotting the fit of the signal MC
 """
 
-'''
-  Bs0
-'''
 
-rule plot_toy_Bs_from_json_to_root:
+rule plot_fit_json_to_root:
     input:
-        binary=code_path + "src/xtokpikpi_CovPlot",
-        pars="output/Bs/pars.json",
-        sig=data_Bs_path + "signal_set.root",
-        norm=phsp_mc_Bs_path + "normalisation_set.root",
+        binary = bin_path + "xtokpikpi_CovPlot",
+        pars = "output/{meson}/pars.json",
+        sig = data_path + "{meson}/signal_set.root",
+        norm = norm_path + "{meson}/normalisation_set.root",
     output:
-        "output/Bs/plot.root"
+        "output/{meson}/plot.root"
     run:
-        shell(f"{input.binary} --meson Bs -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
+        shell(f"{input.binary} --meson {wildcards.meson}\
+              -i {input.pars} -f {input.sig}\
+              -F {input.norm} -o {output}")
 
-rule plot_toy_Bs_from_root_to_pdf:
+rule plot_fit_from_root_to_pdf:
     input:
-        pyscript=code_path + "python/plot_fit_in_5D.py",
-        file="output/Bs/plot.root"
+        pyscript = python_path + "plot_fit_in_5D.py",
+        file = "output/{meson}/plot.root"
     output:
-        "output/Bs/plot.pdf"
+        "output/{meson}/plot.pdf"
     run:
-        shell(f"python {input.pyscript} --input-file={input.file} --output-fig={output} --bins=30")
+        shell(f"python {input.pyscript} \
+              --input-file={input.file} \
+              --output-fig={output} --bins=30")
 
 
-rule plot_dynamics_Bs_from_json_to_root:
+rule plot_dynamics_from_json_to_root:
     input:
-        binary=code_path + "src/xtokpikpi_PlotDynamics",
-        pars="par/standard.json",
-        norm=phsp_mc_Bs_path + "normalisation_set.root",
+        binary = bin_path + "xtokpikpi_PlotDynamics",
+        pars = "par/standard.json",
+        norm = norm_path + "{meson}/normalisation_set.root",
     output:
-        "output/Bs/plot_dynamics.root"
+        "output/{meson}/plot_dynamics.root"
     run:
-        shell(f"{input.binary} --meson Bs -i {input.pars}  -F {input.norm} -o {output}")
+        shell(f"{input.binary} --meson {wildcards.meson}\
+            -i {input.pars}  -F {input.norm} -o {output}")
 
 
-rule plot_dynamics_Bs_from_root_to_pdf:
+rule plot_dynamics_from_root_to_pdf:
     input:
-        pyscript=code_path + "python/plot_dynamics_in_5D.py",
-        file="output/Bs/plot_dynamics.root"
+        pyscript = python_path + "plot_dynamics_in_5D.py",
+        file = "output/{meson}/plot_dynamics.root"
     output:
-        "output/Bs/plot_dynamics.pdf"
+        "output/{meson}/plot_dynamics.pdf"
     run:
-        shell(f"python {input.pyscript} --input-file={input.file} --output-fig={output} --bins=50")
-
-
-'''
-  D0
-'''
-
-rule plot_toy_Du_from_json_to_root:
-    input:
-        binary=code_path + "src/xtokpikpi_CovPlot",
-        pars="output/Du/pars.json",
-        sig=data_Du_path + "signal_set.root",
-        norm=phsp_mc_Du_path + "normalisation_set.root",
-    output:
-        "output/Du/plot.root"
-    run:
-        shell(f"{input.binary} --meson Du -i {input.pars} -f {input.sig} -F {input.norm} -o {output}")
-
-rule plot_toy_Du_from_root_to_pdf:
-    input:
-        pyscript=code_path + "python/plot_fit_in_5D.py",
-        file="output/Du/plot.root"
-    output:
-        "output/Du/plot.pdf"
-    run:
-        shell(f"python {input.pyscript} --input-file={input.file} --output-fig={output} --bins=30")
-
-rule plot_dynamics_Du_from_json_to_root:
-    input:
-        binary=code_path + "src/xtokpikpi_PlotDynamics",
-        pars="par/standard.json",
-        norm=phsp_mc_Du_path + "normalisation_set.root",
-    output:
-        "output/Du/plot_dynamics.root"
-    run:
-        shell(f"{input.binary} --meson Du -i {input.pars}  -F {input.norm} -o {output}")
-
-
-rule plot_dynamics_Du_from_root_to_pdf:
-    input:
-        pyscript=code_path + "python/plot_dynamics_in_5D.py",
-        file="output/Du/plot_dynamics.root"
-    output:
-        "output/Du/plot_dynamics.pdf"
-    run:
-        shell(f"python {input.pyscript} --input-file={input.file} --output-fig={output} --bins=50")
+        shell(f"python {input.pyscript} --input-file={input.file}\
+               --output-fig={output} --bins=50")
