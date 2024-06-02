@@ -39,3 +39,5 @@ log/
 tuples/
 .snakemake/
 output/
+bin/
+src/*.o
