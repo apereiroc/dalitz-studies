@@ -13,18 +13,23 @@ conda activate dalitzstudies
 python -m pip install snakemake
 ```
 
-Install qft++
+Install qft++ inside `$CONDA_PREFIX`
 ```bash
 bash install_qft.sh
 ```
 
-You probably have to create a symlink
-```bash
-ln -s $CONDA_PREFIX/external/qft/lib/libqft++* /usr/local/lib
-```
 # Usage instructions
 
 Here are some examples for generating, fitting and plotting signal and normalisation toy events
+
+## Compilation
+
+The first step is to compile all c++ files. You can do it with SCons 
+```bash
+scons -j$(python -c "import os; print(os.cpu_count())")
+```
+
+TODO: add CMake 
 
 ## Generation
 
@@ -32,8 +37,6 @@ The first step is to obtain a normalisation set for computing the normalisation 
 You can modify the number of events within the main `Snakefile`
 
 ```bash
-scons btokpikpi_CovGen_norm
-
 snakemake tuples/normalisation/Bs/normalisation_set.root -j7
 ```
 
@@ -41,8 +44,6 @@ snakemake tuples/normalisation/Bs/normalisation_set.root -j7
 
 Then generate the signal set
 ```bash
-scons btokpikpi_CovGen_sig get_hmax_Bs -j2
-
 snakemake tuples/signal/Bs/signal_set.root -j7
 ```
 
