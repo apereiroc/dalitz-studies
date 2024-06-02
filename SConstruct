@@ -16,9 +16,6 @@ BOOST_LIB = os.path.join(os.environ["CONDA_PREFIX"], "lib")
 
 
 if platform == "darwin":
-    LLVM_BIN = subprocess.check_output("llvm-config --bindir", shell=True).decode()[:-1]
-    LLVM_LIB = subprocess.check_output("llvm-config --libdir", shell=True).decode()[:-1]
-    env.Replace(CXX=f"{LLVM_BIN}/clang++")
     env.Append(
         CXXFLAGS=[
             "-O3",
@@ -30,10 +27,8 @@ if platform == "darwin":
             "-fopenmp",
         ]
     )
-    env.Append(
-        LIBS=["Minuit2", "MathMore", "qft++", "omp", "boost_program_options"]
-    )
-    env.Append(LIBPATH=[QFT_LIB, BOOST_LIB, LLVM_LIB])
+    env.Append(LIBS=["Minuit2", "MathMore", "qft++", "omp", "boost_program_options"])
+    env.Append(LIBPATH=[QFT_LIB, BOOST_LIB])
 else:
     env.Append(
         CXXFLAGS=[
@@ -45,9 +40,7 @@ else:
             "-fopenmp",
         ]
     )
-    env.Append(
-        LIBS=["Minuit2", "MathMore", "qft++", "boost_program_options"]
-    )
+    env.Append(LIBS=["Minuit2", "MathMore", "qft++", "boost_program_options"])
 
     env.Append(LIBPATH=[QFT_LIB, BOOST_LIB])
     env.Append(LINKFLAGS=["-fopenmp"])
@@ -63,5 +56,5 @@ env.ParseConfig("root-config --libs --cflags --ldflags")
 Export("env")
 
 # Run SConscript files
-env.SConscript('src/SConscript')
-env.SConscript('test/SConscript')
+env.SConscript("src/SConscript")
+env.SConscript("test/SConscript")
