@@ -5,7 +5,7 @@ due to the phase space size, as well as to run some studies of interest at physi
 
 # Install instructions
 
-Create a conda environment, activate it and install snakemake
+Create a `conda` environment, activate it and install `Snakemake`
 
 ```bash
 conda env create --file=environment.yml
@@ -33,7 +33,7 @@ scons -j$(python -c "import os; print(os.cpu_count())")
 
 Or with `CMake`
 ```bash
-TODO: add CMake 
+cmake -B build -S . && cmake --build build -- -j$(python -c "import os; print(os.cpu_count())")
 ```
 
 

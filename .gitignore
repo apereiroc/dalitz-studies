@@ -41,3 +41,4 @@ tuples/
 output/
 bin/
 src/*.o
+build/

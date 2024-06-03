@@ -22,7 +22,7 @@ if platform == "darwin":
             "-Wall",
             "-Wextra",
             "-pedantic",
-            "-std=c++17",
+            "-std=c++20",
             "-Xpreprocessor",
             "-fopenmp",
         ]
@@ -36,7 +36,7 @@ else:
             "-Wall",
             "-Wextra",
             "-pedantic",
-            "-std=c++17",
+            "-std=c++20",
             "-fopenmp",
         ]
     )

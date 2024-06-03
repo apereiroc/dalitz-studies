@@ -1,9 +1,6 @@
 """
   Rules for generating toy signal events
 """
-import os
-
-available_cpu = os.cpu_count() - 1
 
 
 rule get_hmax_for_generating_toy:
@@ -11,7 +8,7 @@ rule get_hmax_for_generating_toy:
         binary = bin_path + "get_hmax",
         pars = "par/standard.json",
     output:
-        data_path + "{meson}/temp/hmax.dat",
+        temp(data_path + "{meson}/hmax.dat"),
     run:
         shell("{input.binary} --meson {wildcards.meson}\
             -i {input.pars} -s 666 -n 10000 -o {output}")
@@ -21,9 +18,9 @@ rule generate_signal_toy_single_job:
     input:
         binary = bin_path + "xtokpikpi_CovGen_sig",
         pars = "par/standard.json",
-        file_hmax = data_path + "{meson}/temp/hmax.dat",
+        file_hmax = data_path + "{meson}/hmax.dat",
     output:
-        data_path + "{meson}/sig_{ipiece}.root",
+        temp(data_path + "{meson}/sig_{ipiece}.root"),
     log:
         "log/signal-{meson}-{ipiece}.log"
     run:
