@@ -3,6 +3,6 @@ Import('*')
 import glob
 import os
 
-for i in glob.glob('*.cpp'):
+for i in glob.glob('./*/*.cpp'):
     bin_name, bin_ext = os.path.splitext(i)
-    env.Program(os.path.join("../bin", bin_name), [i])
+    env.Program(os.path.join("../bin", os.path.basename(bin_name)), [i])
