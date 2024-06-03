@@ -4,14 +4,15 @@
 
 #pragma once
 
-#include <string>
+#include <limits>
 #include <sstream>
+#include <string>
 
 #define MIN_BLIND_VALUE 1000.0
 #define MAX_BLIND_VALUE 20000.0
 
 // Function to convert a hash value to a double
-//double hashValueToDouble(size_t hashValue) {
+// double hashValueToDouble(size_t hashValue) {
 //  // Use a stringstream to convert the hash value to a string
 //  std::stringstream ss;
 //  ss << hashValue;
@@ -23,18 +24,19 @@
 //}
 //
 //// Function to hash a std::string and convert it to a double
-//double hashStringToDouble(const std::string &inputString) {
-//  std::hash<std::string> hasher;
-//  size_t hashValue = hasher(inputString);
-//  return hashValueToDouble(hashValue);
-//}
+// double hashStringToDouble(const std::string &inputString) {
+//   std::hash<std::string> hasher;
+//   size_t hashValue = hasher(inputString);
+//   return hashValueToDouble(hashValue);
+// }
 
 double hashValueToDouble(size_t hashValue, double minValue, double maxValue) {
   // Calculate the range size and map the hash value to the desired range
   double range = maxValue - minValue;
-  double scaledValue = minValue + (static_cast<double>(hashValue) /
-                                   static_cast<double>(std::numeric_limits<size_t>::max())) *
-                                  range;
+  double scaledValue =
+      minValue + (static_cast<double>(hashValue) /
+                  static_cast<double>(std::numeric_limits<size_t>::max())) *
+                     range;
   return scaledValue;
 }
 
@@ -45,7 +47,6 @@ double hashStringToDouble(const std::string &inputString, double minValue,
   size_t hashValue = hasher(inputString);
   return hashValueToDouble(hashValue, minValue, maxValue);
 }
-
 
 class Blinder {
 public:
