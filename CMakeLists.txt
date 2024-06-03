@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.13)
 project(dalitz_studies)
 
 # Enable c++17 standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add the source files
