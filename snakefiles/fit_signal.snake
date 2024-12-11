@@ -9,10 +9,27 @@ rule fit_signal_toy:
         sig = data_path + "{meson}/signal_set.root",
         norm = norm_path + "{meson}/normalisation_set.root",
     output:
-        "output/{meson}/pars.json"
+        pars="output/{meson}/pars.json",
+        cov="output/{meson}/cov.dat",
     threads:
         workflow.cores
     run:
         shell(f"{input.binary} --meson {wildcards.meson}\
                -i {input.pars} -f {input.sig}\
+               -F {input.norm} -o {output.pars}\
+               -c {output.cov}")
+
+rule get_fit_results_signal_toy:
+    input:
+        binary = bin_path + "xtokpikpi_CovResults",
+        pars = "output/{meson}/pars.json",
+        cov = "output/{meson}/cov.dat",
+        norm = norm_path + "{meson}/normalisation_set.root",
+    output:
+        "output/{meson}/results.json"
+    threads:
+        workflow.cores
+    run:
+        shell(f"{input.binary} --meson {wildcards.meson}\
+               -i {input.pars} -c {input.cov}\
                -F {input.norm} -o {output}")
