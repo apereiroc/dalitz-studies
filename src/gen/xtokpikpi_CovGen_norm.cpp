@@ -3,8 +3,8 @@
 
 #include "Data.h"
 #include "GenUtil.h"
-#include "Selection.h"
 #include "Meson.h"
+#include "Selection.h"
 
 namespace po = boost::program_options;
 
@@ -14,13 +14,14 @@ int main(const int argc, const char *argv[]) {
 
   po::options_description desc{"Options"};
 
-  desc.add_options()("help,h", "Display usage")
-          ("meson,m", po::value<std::string>(&inMeson), "Input meson (Bs/Du)")
-          ("output-file,o", po::value<std::string>(&outFile), "Output file")
-          ("seed,s", po::value<unsigned int>(&seed)->default_value(123),
-           "Seed for RNG")
-          ("nevents,n", po::value<unsigned int>(&nevents)->default_value(300),
-           "Number of events to be generated");
+  auto op = desc.add_options();
+  op("help,h", "Display usage");
+  op("meson,m", po::value<std::string>(&inMeson), "Input meson (Bs/Du)");
+  op("output-file,o", po::value<std::string>(&outFile), "Output file");
+  op("seed,s", po::value<unsigned int>(&seed)->default_value(123),
+     "Seed for RNG");
+  op("nevents,n", po::value<unsigned int>(&nevents)->default_value(300),
+     "Number of events to be generated");
 
   po::variables_map args;
   po::store(po::parse_command_line(argc, argv, desc), args);
@@ -49,9 +50,9 @@ int main(const int argc, const char *argv[]) {
 
       // Selection criteria
       const double mass1_kpi =
-              ((*generator.GetDecay(0)) + (*generator.GetDecay(1))).M();
+          ((*generator.GetDecay(0)) + (*generator.GetDecay(1))).M();
       const double mass2_kpi =
-              ((*generator.GetDecay(2)) + (*generator.GetDecay(3))).M();
+          ((*generator.GetDecay(2)) + (*generator.GetDecay(3))).M();
 
       const bool massesInRange = Selection_masses(mass1_kpi, mass2_kpi);
 
@@ -77,7 +78,7 @@ int main(const int argc, const char *argv[]) {
   }
 
   const std::string fname =
-          !outFile.empty()
+      !outFile.empty()
           ? outFile
           : "dat/bdstokppimkmpip-norm-" + std::to_string(seed) + ".root";
 

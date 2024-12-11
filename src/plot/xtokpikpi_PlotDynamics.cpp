@@ -6,14 +6,14 @@
 #include "boost/program_options/parsers.hpp"
 #include <boost/program_options.hpp>
 
-#include "AmpVV.h"
-#include "AmpVS.h"
 #include "AmpSS.h"
+#include "AmpVS.h"
+#include "AmpVV.h"
 #include "Data.h"
 #include "Event.h"
 #include "FitParameters.h"
-#include "SigPDF.h"
 #include "Meson.h"
+#include "SigPDF.h"
 
 using namespace ROOT::Minuit2;
 namespace po = boost::program_options;
@@ -24,13 +24,12 @@ int main(const int argc, const char *argv[]) {
 
   po::options_description desc{"Options"};
 
-  desc.add_options()("help,h", "Display usage")
-          ("meson,m", po::value<std::string>(&inMeson), "Input meson (Bs/Du)")
-          ("normfile,F", po::value<std::string>(&inNorm),
-           "Input normalisation file")
-          ("input-pars,i", po::value<std::string>(&inPars),
-           "Input parameter file")
-          ("output-file,o", po::value<std::string>(&outFile), "Output file");
+  auto op = desc.add_options();
+  op("help,h", "Display usage");
+  op("meson,m", po::value<std::string>(&inMeson), "Input meson (Bs/Du)");
+  op("normfile,F", po::value<std::string>(&inNorm), "Input normalisation file");
+  op("input-pars,i", po::value<std::string>(&inPars), "Input parameter file");
+  op("output-file,o", po::value<std::string>(&outFile), "Output file");
 
   po::variables_map args;
   po::store(po::parse_command_line(argc, argv, desc), args);
@@ -54,30 +53,22 @@ int main(const int argc, const char *argv[]) {
   const std::vector<double> &par = mn_param.Params();
 
   // Load amplitudes
-  AmpVV ampVV_S("K*(892)0 K*(892)0b [S]", SpinVV::S,
-                abs_VV_S, arg_VV_S,
+  AmpVV ampVV_S("K*(892)0 K*(892)0b [S]", SpinVV::S, x_VV_S, y_VV_S,
                 absLambda_VV_S, argLambda_VV_S);
 
-  AmpVV ampVV_P("K*(892)0 K*(892)0b [P]", SpinVV::P,
-                abs_VV_P, arg_VV_P,
+  AmpVV ampVV_P("K*(892)0 K*(892)0b [P]", SpinVV::P, x_VV_P, y_VV_P,
                 absLambda_VV_P, argLambda_VV_P);
 
-  AmpVV ampVV_D("K*(892)0 K*(892)0b [D]", SpinVV::D,
-                abs_VV_D, arg_VV_D,
+  AmpVV ampVV_D("K*(892)0 K*(892)0b [D]", SpinVV::D, x_VV_D, y_VV_D,
                 absLambda_VV_D, argLambda_VV_D);
 
-  AmpVS ampVS_p("K*(892) (Kpi)0 CP-odd", VSConf::Plus,
-                abs_VS_plus, arg_VS_plus,
+  AmpVS ampVS_p("K*(892) (Kpi)0 CP-odd", VSConf::Plus, x_VS_plus, y_VS_plus,
                 absLambda_VS_plus, argLambda_VS_plus);
 
-  AmpVS ampVS_m("K*(892) (Kpi)0 CP-even", VSConf::Minus,
-                abs_VS_minus, arg_VS_minus,
+  AmpVS ampVS_m("K*(892) (Kpi)0 CP-even", VSConf::Minus, x_VS_minus, y_VS_minus,
                 absLambda_VS_minus, argLambda_VS_minus);
 
-  AmpSS ampSS("(Kpi)0 (Kpi)0bar",
-              abs_SS, arg_SS,
-              absLambda_SS, argLambda_SS);
-
+  AmpSS ampSS("(Kpi)0 (Kpi)0bar", x_SS, y_SS, absLambda_SS, argLambda_SS);
 
   ampVV_S.SetPropagator(PropConf::BW);
   ampVV_P.SetPropagator(PropConf::BW);
@@ -89,8 +80,7 @@ int main(const int argc, const char *argv[]) {
   ampSS.SetPropagator(PropConf::LASS);
 
   const auto amps =
-          std::make_tuple(ampVV_S, ampVV_P, ampVV_D,
-                          ampVS_p, ampVS_m, ampSS);
+      std::make_tuple(ampVV_S, ampVV_P, ampVV_D, ampVS_p, ampVS_m, ampSS);
 
   // Load PDFs
   SigPDF pdf_sig(amps, mother.getTauIdx(), mother.getDGIdx(),
@@ -101,7 +91,7 @@ int main(const int argc, const char *argv[]) {
 
   std::cout << "Inserting amps in the events...\n";
 #pragma omp parallel for
-  for (auto &event: norm) {
+  for (auto &event : norm) {
     pdf_sig.updateAmpsInEvent(event, par);
   }
 
@@ -128,13 +118,11 @@ int main(const int argc, const char *argv[]) {
   treeVV->Branch("spin_P", &spin_P);
   treeVV->Branch("spin_D", &spin_D);
 
-
   treeVV->Branch("bf_S", &bf_S);
   treeVV->Branch("bf_P", &bf_P);
   treeVV->Branch("bf_D", &bf_D);
 
-
-  for (const auto &event: norm) {
+  for (const auto &event : norm) {
     // Fill phase spoace points
     cos1 = event.GetCosTheta1();
     cos2 = event.GetCosTheta2();
@@ -145,7 +133,7 @@ int main(const int argc, const char *argv[]) {
     treeVariables->Fill();
 
     // Fill dynamical information
-    const double detJ = get_detJ(mass1, mass2, mass_Bs);
+    // const double detJ = get_detJ(mass1, mass2, mass_Bs);
 
     spin_S = std::abs(event.GetVV().GetAmpSpin(SpinVV::S, CPConf::A));
     spin_P = std::abs(event.GetVV().GetAmpSpin(SpinVV::P, CPConf::A));
@@ -160,7 +148,6 @@ int main(const int argc, const char *argv[]) {
 
   treeVariables->Write();
   treeVV->Write();
-
 
   file->Close();
 

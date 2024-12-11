@@ -70,22 +70,22 @@ int main(const int argc, const char *argv[]) {
   std::cout << "Initial parameter state: " << mn_param << std::endl;
 
   // Load amplitudes
-  AmpVV ampVV_S("K*(892)0 K*(892)0b [S]", SpinVV::S, abs_VV_S, arg_VV_S,
+  AmpVV ampVV_S("K*(892)0 K*(892)0b [S]", SpinVV::S, x_VV_S, y_VV_S,
                 absLambda_VV_S, argLambda_VV_S);
 
-  AmpVV ampVV_P("K*(892)0 K*(892)0b [P]", SpinVV::P, abs_VV_P, arg_VV_P,
+  AmpVV ampVV_P("K*(892)0 K*(892)0b [P]", SpinVV::P, x_VV_P, y_VV_P,
                 absLambda_VV_P, argLambda_VV_P);
 
-  AmpVV ampVV_D("K*(892)0 K*(892)0b [D]", SpinVV::D, abs_VV_D, arg_VV_D,
+  AmpVV ampVV_D("K*(892)0 K*(892)0b [D]", SpinVV::D, x_VV_D, y_VV_D,
                 absLambda_VV_D, argLambda_VV_D);
 
-  AmpVS ampVS_p("K*(892) (Kpi)0 CP-odd", VSConf::Plus, abs_VS_plus, arg_VS_plus,
+  AmpVS ampVS_p("K*(892) (Kpi)0 CP-odd", VSConf::Plus, x_VS_plus, y_VS_plus,
                 absLambda_VS_plus, argLambda_VS_plus);
 
-  AmpVS ampVS_m("K*(892) (Kpi)0 CP-even", VSConf::Minus, abs_VS_minus,
-                arg_VS_minus, absLambda_VS_minus, argLambda_VS_minus);
+  AmpVS ampVS_m("K*(892) (Kpi)0 CP-even", VSConf::Minus, x_VS_minus, y_VS_minus,
+                absLambda_VS_minus, argLambda_VS_minus);
 
-  AmpSS ampSS("(Kpi)0 (Kpi)0bar", abs_SS, arg_SS, absLambda_SS, argLambda_SS);
+  AmpSS ampSS("(Kpi)0 (Kpi)0bar", x_SS, y_SS, absLambda_SS, argLambda_SS);
 
   ampVV_S.SetPropagator(PropConf::BW);
   ampVV_P.SetPropagator(PropConf::BW);
@@ -119,13 +119,15 @@ int main(const int argc, const char *argv[]) {
   tree->Branch("pdf", &pdf);
 
   // Configuration
-  const unsigned int npoints = 50;
-  const unsigned int nfits_per_point = 15;
+  const unsigned int npoints = 30;
+  const unsigned int nfits_per_point = 30;
 
   unsigned int paramIdx = mn_param.Index(inParam);
 
-  const double ll = mn_param.Parameter(paramIdx).LowerLimit();
-  const double ul = mn_param.Parameter(paramIdx).UpperLimit();
+  // const double ll = mn_param.Parameter(paramIdx).LowerLimit();
+  // const double ul = mn_param.Parameter(paramIdx).UpperLimit();
+  const double ll = -50.0;
+  const double ul = +20.0;
 
   std::cout << std::endl
             << "Scanning parameter " << inParam << " from " << ll << " to "
@@ -134,31 +136,39 @@ int main(const int argc, const char *argv[]) {
 
   mn_param.Fix(paramIdx);
 
+  bool minimum_found = false;
+
   for (unsigned int ipoint = 0; ipoint < npoints; ipoint++) {
+    minimum_found = false;
     x = ll + (ul - ll) * ipoint / npoints;
     pdf = std::numeric_limits<double>::max();
-
     mn_param.SetValue(paramIdx, x);
 
-    std::cout << "This is point " << ipoint + 1 << "/" << npoints << std::endl;
+    std::cout << "This is point " << ipoint + 1 << "/" << npoints << '\n';
+    std::cout << "  Parameter " << inParam << " set to " << x << '\n';
 
     for (unsigned int ifit = 0; ifit < nfits_per_point; ifit++) {
       std::cout << "    This is fit " << ifit + 1 << "/" << nfits_per_point
-                << std::endl;
-      RandomiseCovariantCoeffs(mn_param, time(NULL) + ifit * ipoint);
+                << '\n';
+      RandomiseCovariantCoeffs(mn_param, time(NULL));
       MnMigrad migrad(fcn, mn_param, 2);
       FunctionMinimum min = migrad();
       min = migrad();
 
       if (min.IsValid()) {
-        std::cout << "      Found a minimum!" << std::endl;
+        std::cout << "      Found a minimum! ✅\n";
         double minVal = min.Fval();
+        minimum_found = true;
 
         if (minVal < pdf)
           pdf = minVal;
+      } else {
+        std::cout << "      Minimum not valid ❗️\n";
       }
     }
-    tree->Fill();
+
+    if (minimum_found)
+      tree->Fill();
   }
   tree->Write();
   file->Close();
