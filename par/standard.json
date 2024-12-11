@@ -51,16 +51,16 @@
     "val": 0.8955,
     "err": 0.002,
     "fixed": true,
-    "ll": 0.892,
-    "ul": 0.897,
+    "ll": 0.875,
+    "ul": 0.910,
     "latex": "$m_{K^{*0}}$"
   },
   "w_kst0892": {
     "val": 0.0473,
     "err": 0.002,
     "fixed": true,
-    "ll": 0.046,
-    "ul": 0.048,
+    "ll": 0.040,
+    "ul": 0.055,
     "latex": "$\\Gamma_{K^{*0}}$"
   },
   "m_kst1430": {
@@ -95,101 +95,101 @@
     "ul": null,
     "latex": "$r$"
   },
-  "abs_VV_S": {
-    "val": 1.0,
-    "err": 0.001,
-    "fixed": true,
-    "ll": 0.0,
-    "ul": 15.0,
-    "latex": "$|a_{VV}^S|$"
+  "x_VV_S": {
+      "val": 1.0,
+      "err": 0.001,
+      "fixed": true,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Re} \\! \\left( a_{VV}^S \\right)$"
   },
-  "arg_VV_S": {
-    "val": 0.0,
-    "err": 0.001,
-    "fixed": true,
-    "ll": 0.0,
-    "ul": 15.0,
-    "latex": "$\\delta_{VV}^S$"
+  "y_VV_S": {
+      "val": 0.0,
+      "err": 0.001,
+      "fixed": true,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Im} \\! \\left( a_{VV}^S \\right)$"
   },
-  "abs_VV_P": {
-    "val": 1.72,
-    "err": 0.001,
-    "fixed": false,
-    "ll": 1.0,
-    "ul": 2.0,
-    "latex": "$|a_{VV}^P|$"
+  "x_VV_P": {
+      "val": 1.5992541809460044,
+      "err": 0.045543961297121564,
+      "fixed": false,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Re} \\! \\left( a_{VV}^P \\right)$"
   },
-  "arg_VV_P": {
-    "val": 0.0,
-    "err": 0.001,
-    "fixed": true,
-    "ll": -3.1416,
-    "ul": 3.1416,
-    "latex": "$\\delta_{VV}^P$"
+  "y_VV_P": {
+      "val": 0.0,
+      "err": 0.001,
+      "fixed": true,
+      "ll": -10.0,
+      "ul": 10.0,
+      "latex": "$\\operatorname{Im} \\! \\left( a_{VV}^P \\right)$"
   },
-  "abs_VV_D": {
-    "val": 9.44,
-    "err": 0.001,
-    "fixed": false,
-    "ll": 8.0,
-    "ul": 10.0,
-    "latex": "$|a_{VV}^D|$"
+  "x_VV_D": {
+      "val": 9.395132103648345,
+      "err": 0.001,
+      "fixed": false,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Re} \\! \\left( a_{VV}^D \\right)$"
   },
-  "arg_VV_D": {
-    "val": -0.078,
-    "err": 0.001,
-    "fixed": false,
-    "ll": -3.1416,
-    "ul": 3.1416,
-    "latex": "$\\delta_{VV}^D$"
+  "y_VV_D": {
+      "val": -0.6638319343095653,
+      "err": 0.001,
+      "fixed": false,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Im} \\! \\left( a_{VV}^D \\right)$"
   },
-  "abs_VS_plus": {
-    "val": 0.15,
-    "err": 0.001,
-    "fixed": false,
-    "ll": 0.0,
-    "ul": 1.0,
-    "latex": "$|a_{VS}^+|$"
+  "x_VS_plus": {
+      "val": -0.0693270367511113,
+      "err": 0.001,
+      "fixed": false,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Re} \\! \\left( a_{VS}^+ \\right)$"
   },
-  "arg_VS_plus": {
-    "val": -2.2,
-    "err": 0.001,
-    "fixed": false,
-    "ll": -3.1416,
-    "ul": 3.1416,
-    "latex": "$\\delta_{VS}^+$"
+  "y_VS_plus": {
+      "val": -0.10836217720012817,
+      "err": 0.001,
+      "fixed": false,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Im} \\! \\left( a_{VS}^+ \\right)$"
   },
-  "abs_VS_minus": {
-    "val": 0.56,
-    "err": 0.001,
-    "fixed": false,
-    "ll": 0.0,
-    "ul": 1.0,
-    "latex": "$|a_{VS}^-|$"
+  "x_VS_minus": {
+      "val": -0.4190039850736167,
+      "err": 0.001,
+      "fixed": false,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Re} \\! \\left( a_{VS}^- \\right)$"
   },
-  "arg_VS_minus": {
-    "val": 1.8,
-    "err": 0.001,
-    "fixed": false,
-    "ll": -3.1416,
-    "ul": 3.1416,
-    "latex": "$\\delta_{VS}^-$"
+  "y_VS_minus": {
+      "val": -0.04747092578184315,
+      "err": 0.001,
+      "fixed": false,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Im} \\! \\left( a_{VS}^- \\right)$"
   },
-  "abs_SS": {
-    "val": 0.013,
-    "err": 0.001,
-    "fixed": false,
-    "ll": 0.0,
-    "ul": 1.0,
-    "latex": "$|a_{SS}^{}|$"
+  "x_SS": {
+      "val": 0.007829616148701047,
+      "err": 0.001,
+      "fixed": false,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Re} \\! \\left( a_{SS}^{} \\right)$"
   },
-  "arg_SS": {
-    "val": -0.18,
-    "err": 0.001,
-    "fixed": false,
-    "ll": -3.1416,
-    "ul": 3.1416,
-    "latex": "$\\delta_{SS}^{}$"
+  "y_SS": {
+      "val": 0.00017972790770391273,
+      "err": 0.001,
+      "fixed": false,
+      "ll": null,
+      "ul": null,
+      "latex": "$\\operatorname{Im} \\! \\left( a_{SS}^{} \\right)$"
   },
   "absLambda_VV_S": {
     "val": 1.0,
