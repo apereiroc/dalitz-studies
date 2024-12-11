@@ -8,7 +8,7 @@ rule get_hmax_for_generating_toy:
         binary = bin_path + "get_hmax",
         pars = "par/standard.json",
     output:
-        temp(data_path + "{meson}/hmax.dat"),
+        data_path + "{meson}/hmax.dat",
     run:
         shell("{input.binary} --meson {wildcards.meson}\
             -i {input.pars} -s 666 -n 10000 -o {output}")
