@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Constant.h"
 #include <cmath>
 
 /**
@@ -22,9 +23,5 @@ inline double get_detJ(const double &m12, const double &m34,
                        const double &m1 = mass_Kp, const double &m2 = mass_pip,
                        const double &m3 = mass_Kp,
                        const double &m4 = mass_pip) {
-  return
-          get_q(m1234, m12, m34) *
-          get_q(m12, m1, m2) *
-          get_q(m34, m3, m4);
+  return get_q(m1234, m12, m34) * get_q(m12, m1, m2) * get_q(m34, m3, m4);
 }
-

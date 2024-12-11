@@ -5,13 +5,12 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
+#include "Blinder.h"
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/MnPrint.h"
 #include "Minuit2/MnUserParameters.h"
-#include "Blinder.h"
 
 using json = nlohmann::ordered_json;
-
 
 /**
    Enhance MnUserParameters functionality
@@ -19,7 +18,8 @@ using json = nlohmann::ordered_json;
 class FitParameters : public ROOT::Minuit2::MnUserParameters {
 private:
   std::vector<std::string> latexNames;
-  std::vector<std::pair<unsigned int, double>> blindingOffsets; // First: index, Second: blinding offset
+  std::vector<std::pair<unsigned int, double>>
+      blindingOffsets; // First: index, Second: blinding offset
 
   void UpdatePar(const ROOT::Minuit2::FunctionMinimum &min) {
     const ROOT::Minuit2::MnUserParameters &par_min = min.UserParameters();
@@ -40,7 +40,7 @@ public:
 
     latexNames.reserve(parameters.size());
 
-    for (auto &[p, data]: parameters.items()) {
+    for (auto &[p, data] : parameters.items()) {
       const std::string name = p;
       const double val = data["val"];
       const bool fixed = data["fixed"];
@@ -106,10 +106,10 @@ public:
     const unsigned int npars = this->Params().size();
 
     if (npars == 0)
-      std::cerr
-              << "No parameters found. Please add parameters before adding their blinding scheme\n";
+      std::cerr << "No parameters found. Please add parameters before adding "
+                   "their blinding scheme\n";
 
-    for (auto &[paramName, data]: json_file.items()) {
+    for (auto &[paramName, data] : json_file.items()) {
       const std::string &blindingString = data["blinding_string"];
 
       const unsigned int idx = this->Index(paramName);
@@ -147,7 +147,7 @@ public:
   }
 
   void Blind() {
-    for (auto &blindingOffset: blindingOffsets) {
+    for (auto &blindingOffset : blindingOffsets) {
       const unsigned int idx = blindingOffset.first;
       const double offset = blindingOffset.second;
       const double currentVal = this->Value(idx);
@@ -157,7 +157,7 @@ public:
   }
 
   void Unblind() {
-    for (auto &blindingOffset: blindingOffsets) {
+    for (auto &blindingOffset : blindingOffsets) {
       const unsigned int idx = blindingOffset.first;
       const double offset = blindingOffset.second;
       const double currentVal = this->Value(idx);
@@ -216,6 +216,6 @@ public:
   }
 };
 
-FitParameters operator+(FitParameters lhs, const FitParameters &rhs) {
+inline FitParameters operator+(FitParameters lhs, const FitParameters &rhs) {
   return lhs += rhs;
 }

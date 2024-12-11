@@ -5,7 +5,6 @@
 #pragma once
 
 #include <limits>
-#include <sstream>
 #include <string>
 
 #define MIN_BLIND_VALUE 1000.0
@@ -30,7 +29,8 @@
 //   return hashValueToDouble(hashValue);
 // }
 
-double hashValueToDouble(size_t hashValue, double minValue, double maxValue) {
+inline double hashValueToDouble(size_t hashValue, double minValue,
+                                double maxValue) {
   // Calculate the range size and map the hash value to the desired range
   double range = maxValue - minValue;
   double scaledValue =
@@ -41,8 +41,8 @@ double hashValueToDouble(size_t hashValue, double minValue, double maxValue) {
 }
 
 // Function to hash a std::string, reduce the range, and convert it to a double
-double hashStringToDouble(const std::string &inputString, double minValue,
-                          double maxValue) {
+inline double hashStringToDouble(const std::string &inputString,
+                                 double minValue, double maxValue) {
   std::hash<std::string> hasher;
   size_t hashValue = hasher(inputString);
   return hashValueToDouble(hashValue, minValue, maxValue);

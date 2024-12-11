@@ -7,8 +7,8 @@
 #include "TTree.h"
 #include <vector>
 
-void LoadToy(const std::string &filename, const std::string &treename,
-             std::vector<Event> &data, const bool &has_cache = false) {
+inline void LoadToy(const std::string &filename, const std::string &treename,
+                    std::vector<Event> &data, const bool &has_cache = false) {
   // Read ROOT file
   auto *const file = new TFile(filename.c_str());
   if (file->IsZombie()) {
@@ -33,7 +33,8 @@ void LoadToy(const std::string &filename, const std::string &treename,
   double time;
   int qtag;
 
-  TLorentzVector *p4Kp = nullptr, *p4pim = nullptr, *p4Km = nullptr, *p4pip = nullptr;
+  TLorentzVector *p4Kp = nullptr, *p4pim = nullptr, *p4Km = nullptr,
+                 *p4pip = nullptr;
 
   double B_VV_S, B_VV_P, B_VV_D;
   double B_VV_S_CP, B_VV_P_CP, B_VV_D_CP;
@@ -86,7 +87,6 @@ void LoadToy(const std::string &filename, const std::string &treename,
   tree->SetBranchAddress("S_VS_VS_CP", &S_VS_VS_CP);
   tree->SetBranchAddress("S_VS_SV_CP", &S_VS_SV_CP);
 
-
   tree->SetBranchAddress("pdf_gen", &pdf_gen);
 
   for (std::size_t i = 0; i < n; ++i) {
@@ -94,8 +94,8 @@ void LoadToy(const std::string &filename, const std::string &treename,
 
     Event event(*p4Kp, *p4pim, *p4Km, *p4pip, time, qtag, has_cache);
 
-    const bool massesInRange = Selection_masses(event.GetMassKpPim(),
-                                                event.GetMassKmPip());
+    const bool massesInRange =
+        Selection_masses(event.GetMassKpPim(), event.GetMassKmPip());
 
     if (not massesInRange)
       continue;
@@ -129,7 +129,8 @@ void LoadToy(const std::string &filename, const std::string &treename,
   std::cout << data.size() << " toy events loaded" << std::endl;
 }
 
-void SaveData(const std::string &filename, const std::vector<Event> &data) {
+inline void SaveData(const std::string &filename,
+                     const std::vector<Event> &data) {
   auto *const file = new TFile(filename.c_str(), "RECREATE");
 
   auto *const tree = new TTree("fitTree", "");
@@ -201,7 +202,7 @@ void SaveData(const std::string &filename, const std::vector<Event> &data) {
 
   tree->Branch("pdf_gen", &pdf_gen);
 
-  for (const auto &event: data) {
+  for (const auto &event : data) {
     time = event.GetTime();
     qtag = event.GetQtag();
     p4Kp = event.Getp4(CPConf::A)[0].Getp4ROOT();
